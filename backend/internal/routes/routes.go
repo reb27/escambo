@@ -40,6 +40,7 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 
 	r.HandleFunc("/trocas", propostaHandler.InsertProposta).Methods("POST")
 	r.HandleFunc("/trocas/{id}/historico", propostaHandler.GetPropostas).Methods("GET")
+	r.HandleFunc("/trocas/{id}/status", propostaHandler.UpdatePropostaStatus).Methods("PUT")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

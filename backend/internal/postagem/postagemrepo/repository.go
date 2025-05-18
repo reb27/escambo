@@ -15,22 +15,29 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r Repository) InsertPostagem(ctx context.Context, post Post) error {
+func (r Repository) InsertPostagem(ctx context.Context, post Post) (string, error) {
 	query := `
-		INSERT INTO postagens (titulo, descricao, imagem_base64, user_id, categoria)
-		VALUES ($1, $2, $3, $4, $5)
-		ON CONFLICT ON CONSTRAINT unique_titulo_user DO NOTHING;
+		INSERT INTO postagens (id, titulo, descricao, imagem_base64, user_id, categoria)
+		VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
+		ON CONFLICT ON CONSTRAINT unique_titulo_user DO NOTHING
+		RETURNING id;
 	`
 
-	_, err := r.DB.ExecContext(ctx,
+	var id string
+	err := r.DB.QueryRowContext(ctx,
 		query,
 		post.Titulo,
 		post.Descricao,
 		post.ImagemBase64,
 		post.UserID,
 		post.Categoria,
-	)
-	return err
+	).Scan(&id)
+
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+
+	return id, err
 }
 
 func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Post, error) {

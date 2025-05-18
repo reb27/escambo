@@ -5,3 +5,7 @@ type GetPropostasParams struct {
 	Status    *string
 	Tipo      string
 }
+
+type StatusUpdatePayload struct {
+	Status string `json:"status"`
+}

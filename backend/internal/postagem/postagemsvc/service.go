@@ -6,7 +6,7 @@ import (
 )
 
 type PostagemRepository interface {
-	InsertPostagem(ctx context.Context, post postagemrepo.Post) error
+	InsertPostagem(ctx context.Context, post postagemrepo.Post) (string, error)
 	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Post, error)
 }
 
@@ -22,12 +22,12 @@ func NewService(
 	}
 }
 
-func (s Service) InsertPostagem(ctx context.Context, post Postagem) error {
+func (s Service) InsertPostagem(ctx context.Context, post Postagem) (string, error) {
 	if err := post.Validate(); err != nil {
-		return err
+		return "", err
 	}
 
-	err := s.PostagemRepo.InsertPostagem(ctx, postagemrepo.Post{
+	id, err := s.PostagemRepo.InsertPostagem(ctx, postagemrepo.Post{
 		Titulo:       post.Titulo,
 		Descricao:    post.Descricao,
 		ImagemBase64: post.ImagemBase64,
@@ -35,10 +35,10 @@ func (s Service) InsertPostagem(ctx context.Context, post Postagem) error {
 		Categoria:    post.Categoria,
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
 
 func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Postagem, error) {

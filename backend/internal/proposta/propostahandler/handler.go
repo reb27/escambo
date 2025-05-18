@@ -14,7 +14,8 @@ import (
 
 type PropostaSvc interface {
 	GetPropostas(ctx context.Context, filter propostasvc.PropostasFilter) ([]propostarepo.PropostaFormatada, error)
-	InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) error
+	InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) (*propostarepo.Proposta, error)
+	UpdatePropostaStatus(ctx context.Context, propostaID string, status string) error
 }
 
 type Handler struct {
@@ -68,10 +69,10 @@ func (h *Handler) GetPropostas(w http.ResponseWriter, r *http.Request) {
 // @Tags         trocas
 // @Accept       json
 // @Produce      json
-// @Param        proposta  body   propostarepo.PropostaWriteModel  true  "Dados da proposta"
-// @Success      201  {string}  string  "created"
-// @Failure      400  {string}  string  "body inválido"
-// @Failure      500  {string}  string  "erro ao salvar proposta"
+// @Param        proposta  body  propostarepo.PropostaWriteModel  true  "Dados da proposta"
+// @Success      201  {object}  map[string]string  "Proposta criada com sucesso e ID retornado"
+// @Failure      400  {string}  string  "Body inválido"
+// @Failure      500  {string}  string  "Erro ao salvar proposta"
 // @Router       /trocas [post]
 func (h *Handler) InsertProposta(w http.ResponseWriter, r *http.Request) {
 	var proposta propostarepo.PropostaWriteModel
@@ -81,12 +82,44 @@ func (h *Handler) InsertProposta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.InsertProposta(r.Context(), proposta); err != nil {
+	result, err := h.svc.InsertProposta(r.Context(), proposta)
+	if err != nil {
 		http.Error(w, "erro ao salvar proposta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(result)
+}
+
+// UpdatePropostaStatus godoc
+// @Summary      Atualiza o status da proposta
+// @Description  Altera o status da proposta (aceita, recusada, pendente)
+// @Tags         trocas
+// @Accept       json
+// @Param        id    path     string  true  "ID da proposta"
+// @Param        body  body     StatusUpdatePayload true "Novo status"
+// @Success      204   {string} string  "Atualizado com sucesso"
+// @Failure      400   {string} string  "Erro de validação"
+// @Failure      500   {string} string  "Erro interno"
+// @Router       /trocas/{id}/status [put]
+func (h *Handler) UpdatePropostaStatus(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var payload StatusUpdatePayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "body inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.svc.UpdatePropostaStatus(r.Context(), id, payload.Status); err != nil {
+		http.Error(w, "erro ao atualizar status da proposta: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func getParams(r *http.Request) (GetPropostasParams, error) {

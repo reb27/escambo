@@ -3,10 +3,12 @@ package propostasvc
 import (
 	"context"
 	"escambo/internal/proposta/propostarepo"
+	"fmt"
 )
 
 type PropostaRepository interface {
-	InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) error
+	InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) (*propostarepo.Proposta, error)
+	UpdatePropostaStatus(ctx context.Context, propostaID string, status string) error
 	GetPropostas(ctx context.Context, filter propostarepo.PropostasQueryFilter) ([]propostarepo.PropostaFormatada, error)
 }
 
@@ -28,9 +30,17 @@ func (s *Service) GetPropostas(ctx context.Context, filter PropostasFilter) ([]p
 	})
 }
 
-func (s *Service) InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) error {
+func (s *Service) UpdatePropostaStatus(ctx context.Context, propostaID string, status string) error {
+	if !statusMap[status] {
+		return fmt.Errorf("status inválido: '%s'. Os valores permitidos são: 'aceita' ou 'recusada'", status)
+	}
+
+	return s.repo.UpdatePropostaStatus(ctx, propostaID, status)
+}
+
+func (s *Service) InsertProposta(ctx context.Context, proposta propostarepo.PropostaWriteModel) (*propostarepo.Proposta, error) {
 	if err := proposta.Validate(); err != nil {
-		return err
+		return nil, err
 	}
 
 	return s.repo.InsertProposta(ctx, proposta)

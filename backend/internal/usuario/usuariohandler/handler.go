@@ -5,6 +5,7 @@ import (
 	"escambo/internal/usuario/usuariorepo"
 	"escambo/internal/usuario/usuariosvc"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -22,10 +23,11 @@ func NewHandler(usuarioService *usuariosvc.Service) *Handler {
 // @Description  Insere um usuário no sistema com base nos dados fornecidos no corpo da requisição
 // @Tags         usuarios
 // @Accept       json
-// @Produce      plain
+// @Produce      json
 // @Param        usuario  body  usuariorepo.Usuario  true  "Dados do novo usuário"
-// @Success      201  {string}  string  "Usuário inserido com sucesso"
+// @Success      201  {object}  map[string]string  "Usuário inserido com sucesso e ID retornado"
 // @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
+// @Failure      409  {string}  string  "Já existe um cadastro com esse e-mail"
 // @Failure      500  {string}  string  "Erro interno do servidor"
 // @Router       /usuarios [post]
 func (h *Handler) InsertUsuario(w http.ResponseWriter, r *http.Request) {
@@ -37,14 +39,22 @@ func (h *Handler) InsertUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.usuarioService.InsertUsuario(r.Context(), usuario)
+	id, err := h.usuarioService.InsertUsuario(r.Context(), usuario)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		status := http.StatusInternalServerError
+		if strings.Contains(err.Error(), "já existe") {
+			status = http.StatusConflict
+		}
+		http.Error(w, err.Error(), status)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Usuário inserido com sucesso"))
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Usuário inserido com sucesso",
+		"id":      id,
+	})
 }
 
 // UpdateUsuario godoc

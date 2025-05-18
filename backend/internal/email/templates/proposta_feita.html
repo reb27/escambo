@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      color: #333;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #e6f9ec;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border: 1px solid #b6e2c2;
+    }
+
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
+
+    .item-image {
+      width: 100%;
+      max-width: 200px;
+      display: block;
+      margin: 10px auto;
+      border-radius: 8px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #f8fcf8;
+      color: white !important;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .footer {
+      font-size: 12px;
+      margin-top: 30px;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>{{.HeaderMessage}}</h2>
+    </div>
+
+    <p><strong>Usuário:</strong> {{.OtherUserName}}</p>
+    <p><strong>Título da Postagem:</strong> {{.ItemName}}</p>
+    <p><strong>Categoria:</strong> {{.ItemCategory}}</p>
+    <p><strong>Data:</strong> {{.ProposalDate}}</p>
+    <p><strong>Status:</strong> {{.ProposalStatus}}</p>
+
+    {{if .ItemImageURL}}
+      <img class="item-image" src="{{.ItemImageURL}}" alt="Imagem do item: {{.ItemName}}">
+    {{end}}
+
+    <a class="button" href="{{.ProposalLink}}">Visualizar Proposta</a>
+
+    <div class="footer">
+      Esta é uma notificação automática da plataforma Escambo Online.<br>
+      Não compartilhe seus dados pessoais fora da plataforma.<br><br>
+      Escambo Online - Rua Exemplo, 123 - Manaus/AM
+    </div>
+  </div>
+</body>
+</html>

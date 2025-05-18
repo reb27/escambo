@@ -5,3 +5,10 @@ type PropostasFilter struct {
 	Status    *string
 	Tipo      string
 }
+
+var statusMap = map[string]bool{
+	"pendente": true,
+	"aceita":   true,
+	"recusada": true,
+	"expirada": true,
+}

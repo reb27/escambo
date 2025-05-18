@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border: 1px solid #dce1e7;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+    }
+    .header h2 {
+      color: #2a4365;
+    }
+    .details p {
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+    .item-image {
+      width: 100%;
+      max-width: 220px;
+      display: block;
+      margin: 20px auto;
+      border-radius: 6px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 25px;
+      margin-top: 25px;
+      background-color: #3182ce;
+      color: white !important;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .footer {
+      font-size: 12px;
+      margin-top: 40px;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>{{.HeaderMessage}}</h2>
+    </div>
+    <div class="details">
+      <p><strong>Quem respondeu:</strong> {{.OtherUserName}}</p>
+      <p><strong>Item negociado:</strong> {{.ItemName}}</p>
+      <p><strong>Categoria:</strong> {{.ItemCategory}}</p>
+      <p><strong>Data da proposta:</strong> {{.ProposalDate}}</p>
+      <p><strong>Status atualizado:</strong> {{.ProposalStatus}}</p>
+    </div>
+    {{if .ItemImageURL}}
+      <img class="item-image" src="{{.ItemImageURL}}" alt="Imagem do item negociado">
+    {{end}}
+    <div style="text-align: center;">
+      <a class="button" href="{{.ProposalLink}}">👁️ Ver Detalhes da Proposta</a>
+    </div>
+    <div class="footer">
+      Esta é uma notificação automática da plataforma Escambo Online.<br>
+      Por favor, não responda a este e-mail.
+    </div>
+  </div>
+</body>
+</html>

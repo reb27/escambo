@@ -2,6 +2,7 @@ package propostarepo
 
 import (
 	"errors"
+	"time"
 )
 
 type PropostaWriteModel struct {
@@ -43,4 +44,18 @@ func (p PropostaWriteModel) Validate() error {
 	}
 
 	return nil
+}
+
+type Proposta struct {
+	ID             string    `json:"id"`
+	PostagemID     string    `json:"postagem_id"`
+	InteressadoID  string    `json:"interessado_id"`
+	DonoPostagemID string    `json:"dono_postagem_id"`
+	ImagemBase64   string    `json:"imagem_base64"`
+	Descricao      string    `json:"descricao"`
+	Nome           string    `json:"nome"`
+	Categoria      string    `json:"categoria"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

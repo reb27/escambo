@@ -114,19 +114,22 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "created",
+                        "description": "Proposta criada com sucesso e ID retornado",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
-                        "description": "body inválido",
+                        "description": "Body inválido",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "erro ao salvar proposta",
+                        "description": "Erro ao salvar proposta",
                         "schema": {
                             "type": "string"
                         }
@@ -188,6 +191,56 @@
                 }
             }
         },
+        "/trocas/{id}/status": {
+            "put": {
+                "description": "Altera o status da proposta (aceita, recusada, pendente)",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trocas"
+                ],
+                "summary": "Atualiza o status da proposta",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da proposta",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Novo status",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/propostahandler.StatusUpdatePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Atualizado com sucesso",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/usuarios": {
             "post": {
                 "description": "Insere um usuário no sistema com base nos dados fornecidos no corpo da requisição",
@@ -195,7 +248,7 @@
                     "application/json"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
                     "usuarios"
@@ -214,13 +267,22 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Usuário inserido com sucesso",
+                        "description": "Usuário inserido com sucesso e ID retornado",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
                         "description": "Erro ao decodificar corpo da requisição",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Já existe um cadastro com esse e-mail",
                         "schema": {
                             "type": "string"
                         }
@@ -305,6 +367,14 @@
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "propostahandler.StatusUpdatePayload": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }

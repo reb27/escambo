@@ -2,10 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"escambo/internal/email"
 	"escambo/internal/routes"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
@@ -36,6 +38,8 @@ func main() {
 		log.Panic("Error pinging the database: ", err)
 	}
 
+	go email.IniciarEnvioPeriodico(db, 1*time.Minute)
+
 	r := mux.NewRouter()
 
 	routes.RegisterRoutes(r, db)
@@ -53,5 +57,6 @@ func main() {
 
 	log.Println("Servidor rodando na porta " + port + "...")
 	log.Fatal(http.ListenAndServe(":"+port, corsHandler))
+	select {}
 
 }

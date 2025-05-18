@@ -40,6 +40,7 @@ CREATE TABLE endereco (
      ON DELETE CASCADE
 );
 
+
 CREATE TABLE propostas (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     

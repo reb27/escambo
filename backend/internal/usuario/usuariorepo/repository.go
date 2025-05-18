@@ -15,26 +15,23 @@ func NewRepository(db *sql.DB) Repository {
 		DB: db,
 	}
 }
-func (r Repository) InsertUsuario(ctx context.Context, usuario Usuario) error {
+func (r Repository) InsertUsuario(ctx context.Context, usuario Usuario) (string, error) {
 	query := `
-        INSERT INTO usuarios (nome, email, senha, telefone)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (email) DO NOTHING;
+        INSERT INTO usuarios (id, nome, email, senha, telefone)
+        VALUES (gen_random_uuid(), $1, $2, $3, $4)
+        ON CONFLICT (email) DO NOTHING
+        RETURNING id;
     `
-	result, err := r.DB.ExecContext(ctx, query, usuario.Nome, usuario.Email, string(usuario.Senha), usuario.Telefone)
-	if err != nil {
-		return err
+
+	var id string
+	err := r.DB.QueryRowContext(ctx, query, usuario.Nome, usuario.Email, string(usuario.Senha), usuario.Telefone).Scan(&id)
+	if err == sql.ErrNoRows {
+		return "", errors.New("já existe um cadastro com esse e-mail")
+	} else if err != nil {
+		return "", err
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		return errors.New("ja existe um cadastro com esse e-mail")
-	}
-
-	return nil
+	return id, nil
 }
 
 func (r Repository) UpdateUsuario(ctx context.Context, id string, usuario Usuario) error {

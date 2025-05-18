@@ -12,7 +12,7 @@ import (
 
 type PostagemService interface {
 	GetDetalhesPostagem(ctx context.Context, postID string) (postagemsvc.Postagem, error)
-	InsertPostagem(ctx context.Context, post postagemsvc.Postagem) error
+	InsertPostagem(ctx context.Context, post postagemsvc.Postagem) (string, error)
 }
 
 type Handler struct {
@@ -71,12 +71,16 @@ func (h *Handler) InsertPostagem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Service.InsertPostagem(r.Context(), post); err != nil {
+	id, err := h.Service.InsertPostagem(r.Context(), post)
+	if err != nil {
 		http.Error(w, fmt.Sprintf("erro ao salvar postagem: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Postagem inserida com sucesso"))
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Postagem inserida com sucesso",
+		"id":      id,
+	})
 }
