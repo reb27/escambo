@@ -57,6 +57,4 @@ func main() {
 
 	log.Println("Servidor rodando na porta " + port + "...")
 	log.Fatal(http.ListenAndServe(":"+port, corsHandler))
-	select {}
-
 }
