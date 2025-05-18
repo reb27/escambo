@@ -6,5 +6,4 @@ CREATE TABLE notificacoes (
     proposta_status VARCHAR(20) NOT NULL CHECK (proposta_status IN ('pendente', 'aceita', 'recusada')),
     email_enviado BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
