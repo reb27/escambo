@@ -33,3 +33,5 @@ make migrate-create name=your_migration_name
 ```bash
 migrate -path=database/migrations -database DATABASE_URL -verbose up
 ```
+
+Eli
