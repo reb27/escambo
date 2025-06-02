@@ -5,10 +5,6 @@ definitions:
         type: string
       descricao:
         type: string
-      imagens:
-        items:
-          type: string
-        type: array
       titulo:
         type: string
       user_id:
@@ -24,8 +20,6 @@ definitions:
       categoria:
         type: string
       descricao:
-        type: string
-      imagem:
         type: string
       nome:
         type: string

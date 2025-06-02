@@ -9,7 +9,6 @@ type PropostaWriteModel struct {
 	PostagemID     string `json:"postagem_id"`
 	RemetenteID    string `json:"interessado_id"`
 	DestinatarioID string `json:"dono_postagem_id"`
-	ImagemBase64   string `json:"imagem_base64"`
 	Descricao      string `json:"descricao"`
 	Categoria      string `json:"categoria"`
 	Nome           string `json:"nome"`
@@ -26,7 +25,6 @@ type Produto struct {
 	Categoria string `json:"categoria"`
 	Descricao string `json:"descricao"`
 	Usuario   string `json:"usuario"`
-	Imagem    string `json:"imagem"`
 }
 
 type PropostaFormatada struct {
@@ -51,7 +49,6 @@ type Proposta struct {
 	PostagemID     string    `json:"postagem_id"`
 	InteressadoID  string    `json:"interessado_id"`
 	DonoPostagemID string    `json:"dono_postagem_id"`
-	ImagemBase64   string    `json:"imagem_base64"`
 	Descricao      string    `json:"descricao"`
 	Nome           string    `json:"nome"`
 	Categoria      string    `json:"categoria"`

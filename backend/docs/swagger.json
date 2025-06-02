@@ -559,12 +559,6 @@
                 "descricao": {
                     "type": "string"
                 },
-                "imagens": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "titulo": {
                     "type": "string"
                 },
@@ -588,9 +582,6 @@
                     "type": "string"
                 },
                 "descricao": {
-                    "type": "string"
-                },
-                "imagem": {
                     "type": "string"
                 },
                 "nome": {

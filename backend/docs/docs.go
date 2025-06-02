@@ -570,12 +570,6 @@ const docTemplate = `{
                 "descricao": {
                     "type": "string"
                 },
-                "imagens": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "titulo": {
                     "type": "string"
                 },
@@ -599,9 +593,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "descricao": {
-                    "type": "string"
-                },
-                "imagem": {
                     "type": "string"
                 },
                 "nome": {
