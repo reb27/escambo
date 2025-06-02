@@ -142,6 +142,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/postagens/{id}/imagens": {
+            "get": {
+                "description": "Retorna todas as URLs de imagens associadas a uma postagem",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Lista imagens de uma postagem",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da postagem",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no servidor",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/trocas": {
             "post": {
                 "description": "Registra uma proposta de troca com base nos dados enviados",
@@ -281,6 +319,44 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Erro interno no upload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/trocas/{id}/imagens": {
+            "get": {
+                "description": "Retorna todas as URLs de imagens associadas a uma troca",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trocas"
+                ],
+                "summary": "Lista imagens de uma troca",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da troca",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no servidor",
                         "schema": {
                             "type": "string"
                         }

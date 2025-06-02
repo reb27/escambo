@@ -61,6 +61,9 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 	r.HandleFunc("/trocas/{id}/imagem", imagenshandler.UploadImagemTroca).Methods("POST")
 	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.UploadImagemPostagem).Methods("POST")
 
+	r.HandleFunc("/trocas/{id}/imagens", imagenshandler.GetImagensTroca).Methods("GET")
+	r.HandleFunc("/postagens/{id}/imagens", imagenshandler.GetImagensPostagem).Methods("GET")
+
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 }

@@ -1,6 +1,8 @@
 package imagenshandler
 
 import (
+	"context"
+	"encoding/json"
 	"mime/multipart"
 	"net/http"
 
@@ -9,6 +11,7 @@ import (
 
 type ImagensService interface {
 	UploadImagem(file multipart.File, header *multipart.FileHeader, ID, operacao string) (string, error)
+	ListarImagens(ctx context.Context, operacaoID, operacao string) ([]string, error)
 }
 
 type Handler struct {
@@ -53,6 +56,29 @@ func (h *Handler) UploadImagemPostagem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+// GetImagensPostagem godoc
+// @Summary Lista imagens de uma postagem
+// @Description Retorna todas as URLs de imagens associadas a uma postagem
+// @Tags postagens
+// @Produce json
+// @Param id path string true "ID da postagem"
+// @Success 200 {array} string
+// @Failure 500 {string} string "Erro interno no servidor"
+// @Router /postagens/{id}/imagens [get]
+func (h *Handler) GetImagensPostagem(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	urls, err := h.Service.ListarImagens(r.Context(), id, "postagem")
+	if err != nil {
+		http.Error(w, "Erro ao buscar imagens: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(urls)
+}
+
 // UploadImagemTroca faz upload de uma imagem associada a uma troca específica.
 // @Summary Upload de imagem de troca
 // @Description Recebe um arquivo de imagem e o UUID de uma troca. Retorna status 202 em caso de sucesso.
@@ -85,4 +111,27 @@ func (h *Handler) UploadImagemTroca(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+// GetImagensTroca godoc
+// @Summary Lista imagens de uma troca
+// @Description Retorna todas as URLs de imagens associadas a uma troca
+// @Tags trocas
+// @Produce json
+// @Param id path string true "ID da troca"
+// @Success 200 {array} string
+// @Failure 500 {string} string "Erro interno no servidor"
+// @Router /trocas/{id}/imagens [get]
+func (h *Handler) GetImagensTroca(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	urls, err := h.Service.ListarImagens(r.Context(), id, "troca")
+	if err != nil {
+		http.Error(w, "Erro ao buscar imagens: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(urls)
 }

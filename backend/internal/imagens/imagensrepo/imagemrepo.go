@@ -1,6 +1,9 @@
 package imagensrepo
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+)
 
 type Repository struct {
 	DB *sql.DB
@@ -19,4 +22,29 @@ func (r Repository) SalvarImagem(dados Metadata) error {
 	`, dados.ID, dados.Operacao, dados.URL)
 
 	return err
+}
+
+func (r Repository) ListarImagens(ctx context.Context, operacaoID, operacao string) ([]string, error) {
+	query := `
+        SELECT url FROM post_images
+        WHERE operacao_id = $1 AND operacao = $2
+        ORDER BY created_at
+    `
+
+	rows, err := r.DB.QueryContext(ctx, query, operacaoID, operacao)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var urls []string
+	for rows.Next() {
+		var url string
+		if err := rows.Scan(&url); err != nil {
+			return nil, err
+		}
+		urls = append(urls, url)
+	}
+
+	return urls, nil
 }
