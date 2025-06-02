@@ -69,7 +69,6 @@ func (h *Handler) GetPropostas(w http.ResponseWriter, r *http.Request) {
 // @Tags         trocas
 // @Accept       json
 // @Produce      json
-// @Param        proposta  body  propostarepo.PropostaWriteModel  true  "Dados da proposta"
 // @Success      201  {object}  map[string]string  "Proposta criada com sucesso e ID retornado"
 // @Failure      400  {string}  string  "Body inválido"
 // @Failure      500  {string}  string  "Erro ao salvar proposta"
@@ -89,7 +88,7 @@ func (h *Handler) InsertProposta(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
 }
 

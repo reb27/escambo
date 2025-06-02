@@ -5,8 +5,10 @@ definitions:
         type: string
       descricao:
         type: string
-      imagem_base64:
-        type: string
+      imagens:
+        items:
+          type: string
+        type: array
       titulo:
         type: string
       user_id:
@@ -39,24 +41,18 @@ definitions:
       status:
         type: string
     type: object
-  propostarepo.PropostaWriteModel:
+  usuariorepo.ReadUsuario:
     properties:
-      categoria:
+      email:
         type: string
-      descricao:
-        type: string
-      dono_postagem_id:
-        type: string
-      imagem_base64:
-        type: string
-      interessado_id:
+      id:
         type: string
       nome:
         type: string
-      postagem_id:
+      telefone:
         type: string
     type: object
-  usuariorepo.Usuario:
+  usuariorepo.WriteUsuario:
     properties:
       email:
         type: string
@@ -76,13 +72,6 @@ paths:
       - application/json
       description: Cria uma nova postagem no sistema com os dados fornecidos no corpo
         da requisição
-      parameters:
-      - description: Dados da postagem a ser inserida
-        in: body
-        name: postagem
-        required: true
-        schema:
-          $ref: '#/definitions/postagemsvc.Postagem'
       produces:
       - application/json
       responses:
@@ -126,18 +115,48 @@ paths:
       summary: Buscar detalhes da postagem
       tags:
       - postagens
+  /postagens/{id}/imagem:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Recebe um arquivo de imagem e o UUID de uma postagem. Retorna status
+        202 em caso de sucesso.
+      parameters:
+      - description: UUID da postagem
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Arquivo de imagem (máx 10MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Status Accepted (202)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Erro na leitura da imagem ou ID inválido
+          schema:
+            type: string
+        "500":
+          description: Erro interno no upload
+          schema:
+            type: string
+      summary: Upload de imagem de postagem
+      tags:
+      - postagens
   /trocas:
     post:
       consumes:
       - application/json
       description: Registra uma proposta de troca com base nos dados enviados
-      parameters:
-      - description: Dados da proposta
-        in: body
-        name: proposta
-        required: true
-        schema:
-          $ref: '#/definitions/propostarepo.PropostaWriteModel'
       produces:
       - application/json
       responses:
@@ -195,6 +214,43 @@ paths:
       summary: Lista propostas do usuário
       tags:
       - trocas
+  /trocas/{id}/imagem:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Recebe um arquivo de imagem e o UUID de uma troca. Retorna status
+        202 em caso de sucesso.
+      parameters:
+      - description: UUID da troca
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Arquivo de imagem (máx 10MB)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Status Accepted (202)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Erro na leitura da imagem ou ID inválido
+          schema:
+            type: string
+        "500":
+          description: Erro interno no upload
+          schema:
+            type: string
+      summary: Upload de imagem de troca
+      tags:
+      - trocas
   /trocas/{id}/status:
     put:
       consumes:
@@ -234,13 +290,6 @@ paths:
       - application/json
       description: Insere um usuário no sistema com base nos dados fornecidos no corpo
         da requisição
-      parameters:
-      - description: Dados do novo usuário
-        in: body
-        name: usuario
-        required: true
-        schema:
-          $ref: '#/definitions/usuariorepo.Usuario'
       produces:
       - application/json
       responses:
@@ -266,6 +315,38 @@ paths:
       tags:
       - usuarios
   /usuarios/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retorna os dados de um usuário identificado pelo ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usuariorepo.ReadUsuario'
+        "400":
+          description: ID inválido
+          schema:
+            type: string
+        "404":
+          description: Usuário não encontrado
+          schema:
+            type: string
+        "500":
+          description: Erro interno do servidor
+          schema:
+            type: string
+      summary: Busca um usuário
+      tags:
+      - usuarios
     put:
       consumes:
       - application/json
@@ -281,7 +362,7 @@ paths:
         name: usuario
         required: true
         schema:
-          $ref: '#/definitions/usuariorepo.Usuario'
+          $ref: '#/definitions/usuariorepo.WriteUsuario'
       produces:
       - text/plain
       responses:

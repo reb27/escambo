@@ -58,7 +58,6 @@ func (h *Handler) GetDetalhesPostagem(w http.ResponseWriter, r *http.Request) {
 // @Tags         postagens
 // @Accept       json
 // @Produce      json
-// @Param        postagem  body  postagemsvc.Postagem  true  "Dados da postagem a ser inserida"
 // @Success      200  {string}  string  "Postagem inserida com sucesso"
 // @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
 // @Failure      500  {string}  string  "Erro ao salvar postagem"

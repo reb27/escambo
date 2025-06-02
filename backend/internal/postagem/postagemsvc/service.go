@@ -6,8 +6,8 @@ import (
 )
 
 type PostagemRepository interface {
-	InsertPostagem(ctx context.Context, post postagemrepo.Post) (string, error)
-	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Post, error)
+	InsertPostagem(ctx context.Context, post postagemrepo.Postagem) (string, error)
+	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Postagem, error)
 }
 
 type Service struct {
@@ -22,17 +22,16 @@ func NewService(
 	}
 }
 
-func (s Service) InsertPostagem(ctx context.Context, post Postagem) (string, error) {
-	if err := post.Validate(); err != nil {
+func (s Service) InsertPostagem(ctx context.Context, postagem Postagem) (string, error) {
+	if err := postagem.Validate(); err != nil {
 		return "", err
 	}
 
-	id, err := s.PostagemRepo.InsertPostagem(ctx, postagemrepo.Post{
-		Titulo:       post.Titulo,
-		Descricao:    post.Descricao,
-		ImagemBase64: post.ImagemBase64,
-		UserID:       post.UserID,
-		Categoria:    post.Categoria,
+	id, err := s.PostagemRepo.InsertPostagem(ctx, postagemrepo.Postagem{
+		Titulo:    postagem.Titulo,
+		Descricao: postagem.Descricao,
+		UserID:    postagem.UserID,
+		Categoria: postagem.Categoria,
 	})
 	if err != nil {
 		return "", err
@@ -48,10 +47,11 @@ func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Po
 	}
 
 	return Postagem{
-		Titulo:       postagem.Titulo,
-		Descricao:    postagem.Descricao,
-		ImagemBase64: postagem.ImagemBase64,
-		UserID:       postagem.UserID,
-		Categoria:    postagem.Categoria,
+		Titulo:    postagem.Titulo,
+		Descricao: postagem.Descricao,
+		Imagens:   postagem.Imagens,
+		UserID:    postagem.UserID,
+		Categoria: postagem.Categoria,
 	}, nil
+
 }

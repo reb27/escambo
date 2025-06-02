@@ -28,17 +28,6 @@ const docTemplate = `{
                     "postagens"
                 ],
                 "summary": "Insere uma nova postagem",
-                "parameters": [
-                    {
-                        "description": "Dados da postagem a ser inserida",
-                        "name": "postagem",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/postagemsvc.Postagem"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Postagem inserida com sucesso",
@@ -99,6 +88,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/postagens/{id}/imagem": {
+            "post": {
+                "description": "Recebe um arquivo de imagem e o UUID de uma postagem. Retorna status 202 em caso de sucesso.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Upload de imagem de postagem",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID da postagem",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Arquivo de imagem (máx 10MB)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Status Accepted (202)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro na leitura da imagem ou ID inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no upload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/trocas": {
             "post": {
                 "description": "Registra uma proposta de troca com base nos dados enviados",
@@ -112,17 +155,6 @@ const docTemplate = `{
                     "trocas"
                 ],
                 "summary": "Cadastra nova proposta",
-                "parameters": [
-                    {
-                        "description": "Dados da proposta",
-                        "name": "proposta",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/propostarepo.PropostaWriteModel"
-                        }
-                    }
-                ],
                 "responses": {
                     "201": {
                         "description": "Proposta criada com sucesso e ID retornado",
@@ -202,6 +234,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/trocas/{id}/imagem": {
+            "post": {
+                "description": "Recebe um arquivo de imagem e o UUID de uma troca. Retorna status 202 em caso de sucesso.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trocas"
+                ],
+                "summary": "Upload de imagem de troca",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID da troca",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Arquivo de imagem (máx 10MB)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Status Accepted (202)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro na leitura da imagem ou ID inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno no upload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/trocas/{id}/status": {
             "put": {
                 "description": "Altera o status da proposta (aceita, recusada, pendente)",
@@ -265,17 +351,6 @@ const docTemplate = `{
                     "usuarios"
                 ],
                 "summary": "Cadastra um novo usuário",
-                "parameters": [
-                    {
-                        "description": "Dados do novo usuário",
-                        "name": "usuario",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/usuariorepo.Usuario"
-                        }
-                    }
-                ],
                 "responses": {
                     "201": {
                         "description": "Usuário inserido com sucesso e ID retornado",
@@ -308,6 +383,54 @@ const docTemplate = `{
             }
         },
         "/usuarios/{id}": {
+            "get": {
+                "description": "Retorna os dados de um usuário identificado pelo ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Busca um usuário",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/usuariorepo.ReadUsuario"
+                        }
+                    },
+                    "400": {
+                        "description": "ID inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Atualiza as informações de um usuário identificado pelo ID",
                 "consumes": [
@@ -334,7 +457,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usuariorepo.Usuario"
+                            "$ref": "#/definitions/usuariorepo.WriteUsuario"
                         }
                     }
                 ],
@@ -371,8 +494,11 @@ const docTemplate = `{
                 "descricao": {
                     "type": "string"
                 },
-                "imagem_base64": {
-                    "type": "string"
+                "imagens": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "titulo": {
                     "type": "string"
@@ -424,33 +550,24 @@ const docTemplate = `{
                 }
             }
         },
-        "propostarepo.PropostaWriteModel": {
+        "usuariorepo.ReadUsuario": {
             "type": "object",
             "properties": {
-                "categoria": {
+                "email": {
                     "type": "string"
                 },
-                "descricao": {
-                    "type": "string"
-                },
-                "dono_postagem_id": {
-                    "type": "string"
-                },
-                "imagem_base64": {
-                    "type": "string"
-                },
-                "interessado_id": {
+                "id": {
                     "type": "string"
                 },
                 "nome": {
                     "type": "string"
                 },
-                "postagem_id": {
+                "telefone": {
                     "type": "string"
                 }
             }
         },
-        "usuariorepo.Usuario": {
+        "usuariorepo.WriteUsuario": {
             "type": "object",
             "properties": {
                 "email": {

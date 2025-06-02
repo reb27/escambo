@@ -15,7 +15,7 @@ func NewRepository(db *sql.DB) Repository {
 		DB: db,
 	}
 }
-func (r Repository) InsertUsuario(ctx context.Context, usuario Usuario) (string, error) {
+func (r Repository) InsertUsuario(ctx context.Context, usuario WriteUsuario) (string, error) {
 	query := `
         INSERT INTO usuarios (id, nome, email, senha, telefone)
         VALUES (gen_random_uuid(), $1, $2, $3, $4)
@@ -34,7 +34,7 @@ func (r Repository) InsertUsuario(ctx context.Context, usuario Usuario) (string,
 	return id, nil
 }
 
-func (r Repository) UpdateUsuario(ctx context.Context, id string, usuario Usuario) error {
+func (r Repository) UpdateUsuario(ctx context.Context, id string, usuario WriteUsuario) error {
 	query := `
         UPDATE usuarios
         SET nome = $1, telefone = $2, email = $3, updated_at = NOW()
@@ -45,4 +45,24 @@ func (r Repository) UpdateUsuario(ctx context.Context, id string, usuario Usuari
 		return err
 	}
 	return nil
+}
+
+func (r Repository) GetUsuario(ctx context.Context, id string) (ReadUsuario, error) {
+	query := `
+		SELECT id, nome, email, telefone FROM usuarios WHERE id = $1
+	`
+
+	var usuario ReadUsuario
+
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(
+		&usuario.ID,
+		&usuario.Nome,
+		&usuario.Email,
+		&usuario.Telefone,
+	)
+	if err != nil {
+		return ReadUsuario{}, err
+	}
+
+	return usuario, nil
 }

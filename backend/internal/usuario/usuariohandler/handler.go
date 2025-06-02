@@ -1,7 +1,9 @@
 package usuariohandler
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"escambo/internal/usuario/usuariorepo"
 	"escambo/internal/usuario/usuariosvc"
 	"net/http"
@@ -24,14 +26,13 @@ func NewHandler(usuarioService *usuariosvc.Service) *Handler {
 // @Tags         usuarios
 // @Accept       json
 // @Produce      json
-// @Param        usuario  body  usuariorepo.Usuario  true  "Dados do novo usuário"
 // @Success      201  {object}  map[string]string  "Usuário inserido com sucesso e ID retornado"
 // @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
 // @Failure      409  {string}  string  "Já existe um cadastro com esse e-mail"
 // @Failure      500  {string}  string  "Erro interno do servidor"
 // @Router       /usuarios [post]
 func (h *Handler) InsertUsuario(w http.ResponseWriter, r *http.Request) {
-	var usuario usuariorepo.Usuario
+	var usuario usuariorepo.WriteUsuario
 
 	err := json.NewDecoder(r.Body).Decode(&usuario)
 	if err != nil {
@@ -64,7 +65,7 @@ func (h *Handler) InsertUsuario(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      plain
 // @Param        id       path   string                true  "ID do usuário"
-// @Param        usuario  body   usuariorepo.Usuario   true  "Dados atualizados do usuário"
+// @Param        usuario  body   usuariorepo.WriteUsuario   true  "Dados atualizados do usuário"
 // @Success      204  {string}  string  "No Content"
 // @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
 // @Failure      500  {string}  string  "Erro interno do servidor"
@@ -73,7 +74,7 @@ func (h *Handler) UpdateUsuario(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var usuario usuariorepo.Usuario
+	var usuario usuariorepo.WriteUsuario
 
 	err := json.NewDecoder(r.Body).Decode(&usuario)
 	if err != nil {
@@ -88,4 +89,39 @@ func (h *Handler) UpdateUsuario(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// GetUsuario godoc
+// @Summary      Busca um usuário
+// @Description  Retorna os dados de um usuário identificado pelo ID
+// @Tags         usuarios
+// @Accept       json
+// @Produce      json
+// @Param        id   path   string  true  "ID do usuário"
+// @Success      200  {object}  usuariorepo.ReadUsuario
+// @Failure      400  {string}  string  "ID inválido"
+// @Failure      404  {string}  string  "Usuário não encontrado"
+// @Failure      500  {string}  string  "Erro interno do servidor"
+// @Router       /usuarios/{id} [get]
+func (h *Handler) GetUsuario(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	usuario, err := h.usuarioService.GetUsuario(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Erro ao buscar usuário", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(usuario)
 }

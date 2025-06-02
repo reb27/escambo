@@ -2,6 +2,9 @@ package routes
 
 import (
 	"database/sql"
+	"escambo/internal/imagens/imagenshandler"
+	"escambo/internal/imagens/imagensrepo"
+	"escambo/internal/imagens/imagenssvc"
 	"escambo/internal/postagem/postagemhandler"
 	"escambo/internal/postagem/postagemrepo"
 	"escambo/internal/postagem/postagemsvc"
@@ -11,6 +14,8 @@ import (
 	"escambo/internal/usuario/usuariohandler"
 	"escambo/internal/usuario/usuariorepo"
 	"escambo/internal/usuario/usuariosvc"
+	"log"
+	"os"
 
 	_ "escambo/docs"
 
@@ -33,6 +38,7 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 
 	r.HandleFunc("/usuarios", usuarioHandler.InsertUsuario).Methods("POST")
 	r.HandleFunc("/usuarios/{id}", usuarioHandler.UpdateUsuario).Methods("PUT")
+	r.HandleFunc("/usuarios/{id}", usuarioHandler.GetUsuario).Methods("GET")
 
 	propostaRepo := propostarepo.NewRepository(db)
 	propostaService := propostasvc.NewService(propostaRepo)
@@ -41,6 +47,19 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 	r.HandleFunc("/trocas", propostaHandler.InsertProposta).Methods("POST")
 	r.HandleFunc("/trocas/{id}/historico", propostaHandler.GetPropostas).Methods("GET")
 	r.HandleFunc("/trocas/{id}/status", propostaHandler.UpdatePropostaStatus).Methods("PUT")
+
+	bucket := os.Getenv("S3_BUCKET_NAME")
+	region := os.Getenv("AWS_REGION")
+
+	imagensRepo := imagensrepo.NewRepository(db)
+	imagensService, err := imagenssvc.NewService(bucket, region, imagensRepo)
+	if err != nil {
+		log.Fatalf("Erro ao criar imagensService: %v", err)
+	}
+	imagenshandler := imagenshandler.NewHandler(imagensService)
+
+	r.HandleFunc("/trocas/{id}/imagem", imagenshandler.UploadImagemTroca).Methods("POST")
+	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.UploadImagemPostagem).Methods("POST")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
