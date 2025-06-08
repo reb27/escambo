@@ -51,6 +51,7 @@ func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Po
 		Descricao: postagem.Descricao,
 		UserID:    postagem.UserID,
 		Categoria: postagem.Categoria,
+		Imagens:   postagem.Imagens,
 	}, nil
 
 }

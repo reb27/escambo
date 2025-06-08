@@ -3,6 +3,7 @@ package propostarepo
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -135,11 +136,13 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 			po.descricao AS postagem_descricao,
 			po.categoria AS postagem_categoria,
 			uo.nome AS postagem_usuario,
+			po.imagem_url AS postagem_imagens,
 
 			p.nome AS proposta_titulo,
 			p.categoria AS proposta_categoria,
 			p.descricao AS proposta_descricao,
-			ui.nome AS proposta_usuario
+			ui.nome AS proposta_usuario,
+			p.imagem_url AS proposta_imagens
 
 		FROM propostas p
 		JOIN postagens po ON p.postagem_id = po.id
@@ -157,6 +160,8 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 	var propostas []PropostaFormatada
 	for rows.Next() {
 		var p PropostaFormatada
+		var imagensPostagemJSON, imagensPropostaJSON []byte
+
 		err := rows.Scan(
 			&p.Status,
 
@@ -164,15 +169,30 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 			&p.ProdutoPostagem.Descricao,
 			&p.ProdutoPostagem.Categoria,
 			&p.ProdutoPostagem.Usuario,
+			&imagensPostagemJSON,
 
 			&p.ProdutoPropostaTroca.Nome,
 			&p.ProdutoPropostaTroca.Categoria,
 			&p.ProdutoPropostaTroca.Descricao,
 			&p.ProdutoPropostaTroca.Usuario,
+			&imagensPropostaJSON,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		if len(imagensPostagemJSON) > 0 && string(imagensPostagemJSON) != "null" {
+			if err := json.Unmarshal(imagensPostagemJSON, &p.ProdutoPostagem.Imagens); err != nil {
+				return nil, fmt.Errorf("erro ao decodificar imagem_url da postagem: %w", err)
+			}
+		}
+
+		if len(imagensPropostaJSON) > 0 && string(imagensPropostaJSON) != "null" {
+			if err := json.Unmarshal(imagensPropostaJSON, &p.ProdutoPropostaTroca.Imagens); err != nil {
+				return nil, fmt.Errorf("erro ao decodificar imagem_url da proposta: %w", err)
+			}
+		}
+
 		propostas = append(propostas, p)
 	}
 

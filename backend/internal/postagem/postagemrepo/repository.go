@@ -3,6 +3,8 @@ package postagemrepo
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 )
 
 type Repository struct {
@@ -47,11 +49,15 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 			user_id, 
 			categoria,
 			created_at, 
-			updated_at
+			updated_at,
+			imagem_url
 		FROM postagens
 		WHERE id = $1;
 	`
+
 	var post Postagem
+	var imagensJSON []byte
+
 	err := r.DB.QueryRowContext(ctx, query, postID).Scan(
 		&post.Titulo,
 		&post.Descricao,
@@ -59,9 +65,16 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 		&post.Categoria,
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&imagensJSON,
 	)
 	if err != nil {
 		return Postagem{}, err
+	}
+
+	if len(imagensJSON) > 0 {
+		if err := json.Unmarshal(imagensJSON, &post.Imagens); err != nil {
+			return Postagem{}, fmt.Errorf("erro ao decodificar imagem_url: %w", err)
+		}
 	}
 
 	return post, nil

@@ -5,10 +5,11 @@ import (
 )
 
 type Postagem struct {
-	Titulo    string `json:"titulo"`
-	Descricao string `json:"descricao"`
-	UserID    string `json:"user_id"`
-	Categoria string `json:"categoria"`
+	Titulo    string   `json:"titulo"`
+	Descricao string   `json:"descricao"`
+	UserID    string   `json:"user_id"`
+	Categoria string   `json:"categoria"`
+	Imagens   []string `json:"imagens"`
 }
 
 func (p *Postagem) Validate() error {

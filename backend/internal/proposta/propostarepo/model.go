@@ -21,10 +21,11 @@ type PropostasQueryFilter struct {
 }
 
 type Produto struct {
-	Nome      string `json:"nome"`
-	Categoria string `json:"categoria"`
-	Descricao string `json:"descricao"`
-	Usuario   string `json:"usuario"`
+	Nome      string   `json:"nome"`
+	Categoria string   `json:"categoria"`
+	Descricao string   `json:"descricao"`
+	Usuario   string   `json:"usuario"`
+	Imagens   []string `json:"imagens"`
 }
 
 type PropostaFormatada struct {
