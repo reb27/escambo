@@ -15,7 +15,6 @@ import (
 
 type ImagemRepository interface {
 	SalvarImagem(dados imagensrepo.Metadata) error
-	ListarImagens(ctx context.Context, operacaoID, operacao string) ([]string, error)
 }
 
 type Service struct {
@@ -72,8 +71,4 @@ func (s *Service) UploadImagem(file multipart.File, header *multipart.FileHeader
 	}
 
 	return url, nil
-}
-
-func (s *Service) ListarImagens(ctx context.Context, operacaoID, operacao string) ([]string, error) {
-	return s.repo.ListarImagens(ctx, operacaoID, operacao)
 }

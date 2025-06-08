@@ -58,9 +58,10 @@ func (h *Handler) GetDetalhesPostagem(w http.ResponseWriter, r *http.Request) {
 // @Tags         postagens
 // @Accept       json
 // @Produce      json
-// @Success      200  {string}  string  "Postagem inserida com sucesso"
-// @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
-// @Failure      500  {string}  string  "Erro ao salvar postagem"
+// @Param        body  body     postagemsvc.Postagem true "Nova postagem"
+// @Success      201   {object} PostagemResponse "Postagem inserida com sucesso"
+// @Failure      400   {string} string "Erro ao decodificar corpo da requisição"
+// @Failure      500   {string} string "Erro ao salvar postagem"
 // @Router       /postagens [post]
 func (h *Handler) InsertPostagem(w http.ResponseWriter, r *http.Request) {
 	var post postagemsvc.Postagem
@@ -77,9 +78,9 @@ func (h *Handler) InsertPostagem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Postagem inserida com sucesso",
-		"id":      id,
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(PostagemResponse{
+		Message: "Postagem inserida com sucesso",
+		ID:      id,
 	})
 }

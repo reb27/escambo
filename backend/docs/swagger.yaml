@@ -1,4 +1,11 @@
 definitions:
+  postagemhandler.PostagemResponse:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+    type: object
   postagemsvc.Postagem:
     properties:
       categoria:
@@ -66,13 +73,20 @@ paths:
       - application/json
       description: Cria uma nova postagem no sistema com os dados fornecidos no corpo
         da requisição
+      parameters:
+      - description: Nova postagem
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/postagemsvc.Postagem'
       produces:
       - application/json
       responses:
-        "200":
+        "201":
           description: Postagem inserida com sucesso
           schema:
-            type: string
+            $ref: '#/definitions/postagemhandler.PostagemResponse'
         "400":
           description: Erro ao decodificar corpo da requisição
           schema:
@@ -131,10 +145,6 @@ paths:
       responses:
         "202":
           description: Status Accepted (202)
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Erro na leitura da imagem ou ID inválido
           schema:
@@ -144,31 +154,6 @@ paths:
           schema:
             type: string
       summary: Upload de imagem de postagem
-      tags:
-      - postagens
-  /postagens/{id}/imagens:
-    get:
-      description: Retorna todas as URLs de imagens associadas a uma postagem
-      parameters:
-      - description: ID da postagem
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "500":
-          description: Erro interno no servidor
-          schema:
-            type: string
-      summary: Lista imagens de uma postagem
       tags:
       - postagens
   /trocas:
@@ -268,31 +253,6 @@ paths:
           schema:
             type: string
       summary: Upload de imagem de troca
-      tags:
-      - trocas
-  /trocas/{id}/imagens:
-    get:
-      description: Retorna todas as URLs de imagens associadas a uma troca
-      parameters:
-      - description: ID da troca
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              type: string
-            type: array
-        "500":
-          description: Erro interno no servidor
-          schema:
-            type: string
-      summary: Lista imagens de uma troca
       tags:
       - trocas
   /trocas/{id}/status:

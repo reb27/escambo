@@ -1,8 +1,9 @@
 package imagensrepo
 
 import (
-	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 )
 
 type Repository struct {
@@ -16,35 +17,44 @@ func NewRepository(db *sql.DB) Repository {
 }
 
 func (r Repository) SalvarImagem(dados Metadata) error {
-	_, err := r.DB.Exec(`
-		INSERT INTO post_images (operacao_id, operacao, url)
-		VALUES ($1, $2, $3)
-	`, dados.ID, dados.Operacao, dados.URL)
-
-	return err
-}
-
-func (r Repository) ListarImagens(ctx context.Context, operacaoID, operacao string) ([]string, error) {
-	query := `
-        SELECT url FROM post_images
-        WHERE operacao_id = $1 AND operacao = $2
-        ORDER BY created_at
-    `
-
-	rows, err := r.DB.QueryContext(ctx, query, operacaoID, operacao)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
+	var currentJSON []byte
 	var urls []string
-	for rows.Next() {
-		var url string
-		if err := rows.Scan(&url); err != nil {
-			return nil, err
-		}
-		urls = append(urls, url)
+
+	var querySelect string
+	var queryUpdate string
+
+	switch dados.Operacao {
+	case "troca":
+		querySelect = "SELECT imagem_url FROM propostas WHERE id = $1"
+		queryUpdate = "UPDATE propostas SET imagem_url = $1 WHERE id = $2"
+
+	case "postagem":
+		querySelect = "SELECT imagem_url FROM postagens WHERE id = $1"
+		queryUpdate = "UPDATE postagens SET imagem_url = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2"
+
+	default:
+		return fmt.Errorf("operação desconhecida: %s", dados.Operacao)
 	}
 
-	return urls, nil
+	err := r.DB.QueryRow(querySelect, dados.ID).Scan(&currentJSON)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if len(currentJSON) > 0 {
+		err = json.Unmarshal(currentJSON, &urls)
+		if err != nil {
+			return fmt.Errorf("erro ao fazer unmarshal do JSON: %w", err)
+		}
+	}
+
+	urls = append(urls, dados.URL)
+
+	newJSON, err := json.Marshal(urls)
+	if err != nil {
+		return fmt.Errorf("erro ao fazer marshal do JSON: %w", err)
+	}
+
+	_, err = r.DB.Exec(queryUpdate, string(newJSON), dados.ID)
+	return err
 }

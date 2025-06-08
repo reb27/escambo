@@ -28,11 +28,22 @@ const docTemplate = `{
                     "postagens"
                 ],
                 "summary": "Insere uma nova postagem",
+                "parameters": [
+                    {
+                        "description": "Nova postagem",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/postagemsvc.Postagem"
+                        }
+                    }
+                ],
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Postagem inserida com sucesso",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/postagemhandler.PostagemResponse"
                         }
                     },
                     "400": {
@@ -119,13 +130,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Status Accepted (202)",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Status Accepted (202)"
                     },
                     "400": {
                         "description": "Erro na leitura da imagem ou ID inválido",
@@ -135,44 +140,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Erro interno no upload",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/postagens/{id}/imagens": {
-            "get": {
-                "description": "Retorna todas as URLs de imagens associadas a uma postagem",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "postagens"
-                ],
-                "summary": "Lista imagens de uma postagem",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID da postagem",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Erro interno no servidor",
                         "schema": {
                             "type": "string"
                         }
@@ -319,44 +286,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Erro interno no upload",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/trocas/{id}/imagens": {
-            "get": {
-                "description": "Retorna todas as URLs de imagens associadas a uma troca",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "trocas"
-                ],
-                "summary": "Lista imagens de uma troca",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID da troca",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Erro interno no servidor",
                         "schema": {
                             "type": "string"
                         }
@@ -561,6 +490,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "postagemhandler.PostagemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "postagemsvc.Postagem": {
             "type": "object",
             "properties": {
