@@ -26,6 +26,7 @@ func NewHandler(usuarioService *usuariosvc.Service) *Handler {
 // @Tags         usuarios
 // @Accept       json
 // @Produce      json
+// @Param        proposta  body     usuariorepo.WriteUsuario  true  "Dados da proposta"
 // @Success      201  {object}  map[string]string  "Usuário inserido com sucesso e ID retornado"
 // @Failure      400  {string}  string  "Erro ao decodificar corpo da requisição"
 // @Failure      409  {string}  string  "Já existe um cadastro com esse e-mail"

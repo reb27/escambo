@@ -12,6 +12,21 @@ definitions:
         type: string
       descricao:
         type: string
+      imagens:
+        items:
+          type: string
+        type: array
+      titulo:
+        type: string
+      user_id:
+        type: string
+    type: object
+  postagemsvc.PostagemWrite:
+    properties:
+      categoria:
+        type: string
+      descricao:
+        type: string
       titulo:
         type: string
       user_id:
@@ -28,6 +43,10 @@ definitions:
         type: string
       descricao:
         type: string
+      imagens:
+        items:
+          type: string
+        type: array
       nome:
         type: string
       usuario:
@@ -40,6 +59,21 @@ definitions:
       produto_proposta_troca:
         $ref: '#/definitions/propostarepo.Produto'
       status:
+        type: string
+    type: object
+  propostarepo.PropostaWriteModel:
+    properties:
+      categoria:
+        type: string
+      descricao:
+        type: string
+      dono_postagem_id:
+        type: string
+      interessado_id:
+        type: string
+      nome:
+        type: string
+      postagem_id:
         type: string
     type: object
   usuariorepo.ReadUsuario:
@@ -79,7 +113,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/postagemsvc.Postagem'
+          $ref: '#/definitions/postagemsvc.PostagemWrite'
       produces:
       - application/json
       responses:
@@ -161,6 +195,13 @@ paths:
       consumes:
       - application/json
       description: Registra uma proposta de troca com base nos dados enviados
+      parameters:
+      - description: Dados da proposta
+        in: body
+        name: proposta
+        required: true
+        schema:
+          $ref: '#/definitions/propostarepo.PropostaWriteModel'
       produces:
       - application/json
       responses:
@@ -240,10 +281,6 @@ paths:
       responses:
         "202":
           description: Status Accepted (202)
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Erro na leitura da imagem ou ID inválido
           schema:
@@ -294,6 +331,13 @@ paths:
       - application/json
       description: Insere um usuário no sistema com base nos dados fornecidos no corpo
         da requisição
+      parameters:
+      - description: Dados da proposta
+        in: body
+        name: proposta
+        required: true
+        schema:
+          $ref: '#/definitions/usuariorepo.WriteUsuario'
       produces:
       - application/json
       responses:

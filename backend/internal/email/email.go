@@ -3,6 +3,7 @@ package email
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -101,7 +102,7 @@ func MarcarEmailComoEnviado(db *sql.DB, id string) error {
 }
 
 func IniciarEnvioPeriodico(db *sql.DB, intervalo time.Duration) {
-	log.Println("Inicio do processo de envio")
+	log.Println("Início do processo de envio")
 
 	ticker := time.NewTicker(intervalo)
 	defer ticker.Stop()
@@ -119,23 +120,36 @@ func IniciarEnvioPeriodico(db *sql.DB, intervalo time.Duration) {
 		}
 
 		var (
-			userName, userEmail        string
-			otherUserName, itemName    string
-			itemCategory, itemImageURL string
+			userName, userEmail     string
+			otherUserName, itemName string
+			itemCategory            string
+			itemImageRaw            []byte
 		)
 
 		err = db.QueryRow(`
-				SELECT u.nome, u.email, dono.nome, p.titulo, p.categoria, p.imagem_url
-				FROM usuarios u
-				JOIN usuarios dono ON dono.id = $1
-				JOIN postagens p ON p.id = $2
-				WHERE u.id = $3
-			`, notif.RemetenteID, notif.PostagemID, notif.DestinatarioID).
-			Scan(&userName, &userEmail, &otherUserName, &itemName, &itemCategory, &itemImageURL)
+			SELECT u.nome, u.email, dono.nome, p.titulo, p.categoria, p.imagem_url
+			FROM usuarios u
+			JOIN usuarios dono ON dono.id = $1
+			JOIN postagens p ON p.id = $2
+			WHERE u.id = $3
+		`, notif.RemetenteID, notif.PostagemID, notif.DestinatarioID).
+			Scan(&userName, &userEmail, &otherUserName, &itemName, &itemCategory, &itemImageRaw)
 
 		if err != nil {
 			log.Printf("Erro ao buscar dados do usuário: %v", err)
 			continue
+		}
+
+		imgURL := ""
+		if len(itemImageRaw) > 0 {
+			var itemImageData map[string]interface{}
+			if err := json.Unmarshal(itemImageRaw, &itemImageData); err != nil {
+				log.Printf("Erro ao parsear imagem JSON: %v", err)
+			} else {
+				if url, ok := itemImageData["url"].(string); ok {
+					imgURL = url
+				}
+			}
 		}
 
 		emailData := EmailData{
@@ -147,7 +161,7 @@ func IniciarEnvioPeriodico(db *sql.DB, intervalo time.Duration) {
 			ProposalDate:       notif.CreatedAt.Format("02/01/2006"),
 			ProposalStatus:     notif.Status,
 			ProposalLink:       fmt.Sprintf("https://escambo.online/propostas/%s", notif.ID),
-			ItemImageURL:       itemImageURL,
+			ItemImageURL:       imgURL,
 			HeaderMessage:      gerarHeader(notif.Status),
 			InterestedItemName: "Item do interessado",
 		}
@@ -164,6 +178,7 @@ func IniciarEnvioPeriodico(db *sql.DB, intervalo time.Duration) {
 		}
 	}
 }
+
 func gerarHeader(status string) string {
 	switch status {
 	case "pendente":

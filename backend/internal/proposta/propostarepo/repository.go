@@ -74,20 +74,21 @@ func (r Repository) InsertProposta(ctx context.Context, proposta PropostaWriteMo
 		proposta.Nome,
 	).Scan(&exists)
 
-	if err == nil {
-		return nil, fmt.Errorf("proposta já enviada para essa postagem com esse nome")
+	if err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("erro ao verificar proposta existente: %w", err)
 	}
-	if err != sql.ErrNoRows {
-		return nil, err
+
+	if err == nil {
+		return nil, fmt.Errorf("uma proposta com esse título já foi enviada para essa postagem")
 	}
 
 	insertQuery := `
 		INSERT INTO propostas (
-			postagem_id, interessado_id, dono_postagem_id, imagem_base64, descricao, nome, categoria
+			postagem_id, interessado_id, dono_postagem_id, descricao, nome, categoria
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7
+			$1, $2, $3, $4, $5, $6
 		)
-		RETURNING id, postagem_id, interessado_id, dono_postagem_id, imagem_base64, descricao, nome, categoria, status, created_at;
+		RETURNING id, postagem_id, interessado_id, dono_postagem_id, descricao, nome, categoria, status, created_at;
 	`
 
 	var inserted Proposta
@@ -110,7 +111,7 @@ func (r Repository) InsertProposta(ctx context.Context, proposta PropostaWriteMo
 		&inserted.CreatedAt,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao salvar proposta: %v", err)
+		return nil, fmt.Errorf("erro ao salvar proposta: %w", err)
 	}
 
 	evento := `
@@ -121,6 +122,7 @@ func (r Repository) InsertProposta(ctx context.Context, proposta PropostaWriteMo
 
 	_, err = r.DB.ExecContext(ctx, evento, proposta.RemetenteID, proposta.DestinatarioID, proposta.PostagemID, "pendente")
 	if err != nil {
+		// Loga o erro, mas não falha a operação principal
 		log.Printf("erro ao salvar evento na tabela de notificacoes: %v", err)
 	}
 

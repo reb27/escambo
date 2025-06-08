@@ -12,6 +12,13 @@ type Postagem struct {
 	Imagens   []string `json:"imagens"`
 }
 
+type PostagemWrite struct {
+	Titulo    string `json:"titulo"`
+	Descricao string `json:"descricao"`
+	UserID    string `json:"user_id"`
+	Categoria string `json:"categoria"`
+}
+
 func (p *Postagem) Validate() error {
 	if p.Titulo == "" {
 		return errors.New("o título é obrigatório")

@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/postagemsvc.Postagem"
+                            "$ref": "#/definitions/postagemsvc.PostagemWrite"
                         }
                     }
                 ],
@@ -160,6 +160,17 @@ const docTemplate = `{
                     "trocas"
                 ],
                 "summary": "Cadastra nova proposta",
+                "parameters": [
+                    {
+                        "description": "Dados da proposta",
+                        "name": "proposta",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/propostarepo.PropostaWriteModel"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Proposta criada com sucesso e ID retornado",
@@ -270,13 +281,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Status Accepted (202)",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Status Accepted (202)"
                     },
                     "400": {
                         "description": "Erro na leitura da imagem ou ID inválido",
@@ -356,6 +361,17 @@ const docTemplate = `{
                     "usuarios"
                 ],
                 "summary": "Cadastra um novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados da proposta",
+                        "name": "proposta",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usuariorepo.WriteUsuario"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Usuário inserido com sucesso e ID retornado",
@@ -510,6 +526,29 @@ const docTemplate = `{
                 "descricao": {
                     "type": "string"
                 },
+                "imagens": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "titulo": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemsvc.PostagemWrite": {
+            "type": "object",
+            "properties": {
+                "categoria": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
                 "titulo": {
                     "type": "string"
                 },
@@ -535,6 +574,12 @@ const docTemplate = `{
                 "descricao": {
                     "type": "string"
                 },
+                "imagens": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "nome": {
                     "type": "string"
                 },
@@ -553,6 +598,29 @@ const docTemplate = `{
                     "$ref": "#/definitions/propostarepo.Produto"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "propostarepo.PropostaWriteModel": {
+            "type": "object",
+            "properties": {
+                "categoria": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "dono_postagem_id": {
+                    "type": "string"
+                },
+                "interessado_id": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "postagem_id": {
                     "type": "string"
                 }
             }

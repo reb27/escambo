@@ -58,20 +58,27 @@ func (h *Handler) GetDetalhesPostagem(w http.ResponseWriter, r *http.Request) {
 // @Tags         postagens
 // @Accept       json
 // @Produce      json
-// @Param        body  body     postagemsvc.Postagem true "Nova postagem"
+// @Param        body  body     postagemsvc.PostagemWrite true "Nova postagem"
 // @Success      201   {object} PostagemResponse "Postagem inserida com sucesso"
 // @Failure      400   {string} string "Erro ao decodificar corpo da requisição"
 // @Failure      500   {string} string "Erro ao salvar postagem"
 // @Router       /postagens [post]
 func (h *Handler) InsertPostagem(w http.ResponseWriter, r *http.Request) {
-	var post postagemsvc.Postagem
+	var post postagemsvc.PostagemWrite
 
 	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
 		http.Error(w, fmt.Sprintf("erro ao decodificar corpo da requisição: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	id, err := h.Service.InsertPostagem(r.Context(), post)
+	postInsert := postagemsvc.Postagem{
+		Titulo:    post.Titulo,
+		Descricao: post.Descricao,
+		UserID:    post.UserID,
+		Categoria: post.Categoria,
+	}
+
+	id, err := h.Service.InsertPostagem(r.Context(), postInsert)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("erro ao salvar postagem: %v", err), http.StatusInternalServerError)
 		return
