@@ -2,12 +2,14 @@ package postagemsvc
 
 import (
 	"context"
+	"errors"
 	"escambo/internal/postagem/postagemrepo"
 )
 
 type PostagemRepository interface {
 	InsertPostagem(ctx context.Context, post postagemrepo.Postagem) (string, error)
 	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Postagem, error)
+	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error)
 }
 
 type Service struct {
@@ -54,4 +56,13 @@ func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Po
 		Imagens:   postagem.Imagens,
 	}, nil
 
+}
+
+func (s Service) GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error) {
+	postagens, err := s.PostagemRepo.GetPostagens(ctx, filtro)
+	if err != nil {
+		return []postagemrepo.Postagem{}, errors.New("erro ao listar postagens")
+	}
+
+	return postagens, nil
 }
