@@ -31,6 +31,13 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 
 	r.HandleFunc("/postagens/{id}/detalhes", postHandler.GetDetalhesPostagem).Methods("GET")
 	r.HandleFunc("/postagens", postHandler.InsertPostagem).Methods("POST")
+	r.HandleFunc("/postagens", postHandler.GetPostagens).Methods("GET")
+	r.HandleFunc("/postagens/{id}", postHandler.DeletarPostagem).Methods("DELETE")
+	r.HandleFunc("/postagens", postHandler.UpdatePostagem).Methods("PUT")
+
+	r.HandleFunc("/favoritos", postHandler.FavoritarPostagem).Methods("POST")
+	r.HandleFunc("/favoritos", postHandler.DesfavoritarPostagem).Methods("DELETE")
+	r.HandleFunc("/favoritos/{user_id}", postHandler.GetFavoritosByUserID).Methods("GET")
 
 	userRepo := usuariorepo.NewRepository(db)
 	usuarioService := usuariosvc.NewService(userRepo)
@@ -60,6 +67,7 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 
 	r.HandleFunc("/trocas/{id}/imagem", imagenshandler.UploadImagemTroca).Methods("POST")
 	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.UploadImagemPostagem).Methods("POST")
+	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.DeleteImagemPostagem).Methods("DELETE")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

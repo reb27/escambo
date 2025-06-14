@@ -1,6 +1,9 @@
 package imagenshandler
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 
@@ -9,6 +12,7 @@ import (
 
 type ImagensService interface {
 	UploadImagem(file multipart.File, header *multipart.FileHeader, ID, operacao string) (string, error)
+	DeletarImagemPostagem(ctx context.Context, postagemID, url string) error
 }
 
 type Handler struct {
@@ -51,6 +55,38 @@ func (h *Handler) UploadImagemPostagem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+// DeleteImagemPostagem godoc
+// @Summary      Remove uma imagem da postagem
+// @Description  Deleta uma imagem do S3 e remove a URL do campo imagem_url da tabela postagens
+// @Tags         postagens
+// @Accept       json
+// @Produce      json
+// @Deprecated
+// @Param        id   path      string  true  "ID da Postagem"
+// @Param        body body      DeletarImagemRequest true "URL da imagem a ser removida"
+// @Success      204  {string}  "Imagem deletada com sucesso"
+// @Failure      400  "Requisição inválida"
+// @Failure      500  "Erro interno"
+// @Router       /postagens/{id}/imagem [delete]
+func (h Handler) DeleteImagemPostagem(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postagemID := vars["id"]
+
+	var req DeletarImagemRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.URL == "" {
+		http.Error(w, `{"error":"URL da imagem é obrigatória"}`, http.StatusBadRequest)
+		return
+	}
+
+	err := h.Service.DeletarImagemPostagem(r.Context(), postagemID, req.URL)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // UploadImagemTroca faz upload de uma imagem associada a uma troca específica.

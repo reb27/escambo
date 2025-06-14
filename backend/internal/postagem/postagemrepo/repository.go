@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type Repository struct {
@@ -64,7 +65,6 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 		&post.UserID,
 		&post.Categoria,
 		&post.CreatedAt,
-		&post.UpdatedAt,
 		&imagensJSON,
 	)
 	if err != nil {
@@ -79,46 +79,33 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 
 	return post, nil
 }
-func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem) ([]Postagem, error) {
-	query := `
+
+func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, offset int) ([]Postagem, error) {
+
+	fmt.Println("categoria: ", filtro.Categoria)
+	query := fmt.Sprintf(`
 		SELECT 
+			p.ativa,
 			p.titulo, 
 			p.descricao, 
-			p.user_id, 
-			p.categoria,
-			p.created_at, 
-			p.updated_at,
+			p.categoria, 
 			p.imagem_url,
-			u.nome as nome_usuario,
+			p.user_id,
+			p.created_at,
+			u.nome AS nome_usuario,
 			e.cidade,
 			e.estado,
 			e.bairro
 		FROM postagens p
 		JOIN usuarios u ON u.id = p.user_id
 		JOIN endereco e ON e.user_id = u.id
-		WHERE p.postagem_ativa = TRUE
-			AND ($1::text IS NULL OR p.categoria = $1)
-			AND ($2::text IS NULL OR e.cidade ILIKE '%' || $2 || '%')
-			AND ($3::text IS NULL OR e.estado ILIKE '%' || $3 || '%')
-			AND ($4::text IS NULL OR p.titulo ILIKE '%' || $4 || '%' OR p.descricao ILIKE '%' || $4 || '%')
-			AND ($5::timestamp IS NULL OR p.created_at >= $5)
-			AND ($6::timestamp IS NULL OR p.created_at <= $6)
-		ORDER BY 
-			CASE WHEN $7 = 'data' THEN p.created_at
-			     WHEN $7 = 'relevancia' THEN p.updated_at
-			     ELSE p.created_at
-			END DESC
-	`
+		WHERE p.ativa = TRUE
+			AND (NULLIF($1, '') IS NULL OR p.categoria = $1)
+		ORDER BY p.created_at %s
+		LIMIT $2 OFFSET $3
+	`, filtro.Ordenacao)
 
-	rows, err := r.DB.QueryContext(ctx, query,
-		filtro.Categoria,
-		filtro.Cidade,
-		filtro.Estado,
-		filtro.PalavraChave,
-		filtro.De,
-		filtro.Ate,
-		filtro.Ordenacao,
-	)
+	rows, err := r.DB.QueryContext(ctx, query, filtro.Categoria, filtro.Limite, offset)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao executar query: %w", err)
 	}
@@ -128,16 +115,16 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem) ([]
 
 	for rows.Next() {
 		var post Postagem
-		var imagensJSON []byte
+		var imagensJSON *string
 
 		err := rows.Scan(
+			&post.Status,
 			&post.Titulo,
 			&post.Descricao,
-			&post.UserID,
 			&post.Categoria,
-			&post.CreatedAt,
-			&post.UpdatedAt,
 			&imagensJSON,
+			&post.UserID,
+			&post.CreatedAt,
 			&post.NomeUsuario,
 			&post.Cidade,
 			&post.Estado,
@@ -147,8 +134,8 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem) ([]
 			return nil, fmt.Errorf("erro ao escanear linha: %w", err)
 		}
 
-		if len(imagensJSON) > 0 {
-			if err := json.Unmarshal(imagensJSON, &post.Imagens); err != nil {
+		if imagensJSON != nil && *imagensJSON != "" {
+			if err := json.Unmarshal([]byte(*imagensJSON), &post.Imagens); err != nil {
 				return nil, fmt.Errorf("erro ao decodificar imagem_url: %w", err)
 			}
 		}
@@ -161,4 +148,163 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem) ([]
 	}
 
 	return postagens, nil
+}
+
+func (r Repository) UpdatePostagem(ctx context.Context, postagem PostagemEdicao) error {
+	queryCheck := `
+		SELECT EXISTS (
+			SELECT 1 FROM propostas
+			WHERE postagem_id = $1 AND status = 'aceita'
+		)
+	`
+	var hasAccepted bool
+	err := r.DB.QueryRowContext(ctx, queryCheck, postagem.ID).Scan(&hasAccepted)
+	if err != nil {
+		return fmt.Errorf("erro ao verificar propostas: %w", err)
+	}
+	if hasAccepted {
+		return fmt.Errorf("não é possível atualizar postagem pois já existe uma proposta aceita")
+	}
+
+	query := `UPDATE postagens SET `
+	args := []interface{}{}
+	updates := []string{}
+	i := 1
+
+	if postagem.Titulo != nil {
+		updates = append(updates, fmt.Sprintf("titulo = $%d", i))
+		args = append(args, *postagem.Titulo)
+		i++
+	}
+	if postagem.Descricao != nil {
+		updates = append(updates, fmt.Sprintf("descricao = $%d", i))
+		args = append(args, *postagem.Descricao)
+		i++
+	}
+	if postagem.Categoria != nil {
+		updates = append(updates, fmt.Sprintf("categoria = $%d", i))
+		args = append(args, *postagem.Categoria)
+		i++
+	}
+	if postagem.Status != nil {
+		updates = append(updates, fmt.Sprintf("ativa = $%d", i))
+		args = append(args, *postagem.Status)
+		i++
+	}
+
+	if len(updates) == 0 {
+		return fmt.Errorf("nenhum campo foi informado para atualização")
+	}
+
+	updates = append(updates, "updated_at = NOW()")
+	query += strings.Join(updates, ", ")
+	query += fmt.Sprintf(" WHERE id = $%d", i)
+	args = append(args, postagem.ID)
+
+	result, err := r.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("erro ao atualizar postagem: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("erro ao verificar linhas afetadas: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (r Repository) DeletarPostagem(ctx context.Context, postagemID string) error {
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("erro ao iniciar transação: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		DELETE FROM propostas
+		WHERE postagem_id = $1 AND status != 'aceita'
+	`, postagemID)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("erro ao deletar propostas: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		DELETE FROM postagens
+		WHERE id = $1
+	`, postagemID)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("erro ao deletar postagem: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("erro ao finalizar transação: %w", err)
+	}
+
+	return nil
+}
+
+func (r Repository) FavoritarPostagem(ctx context.Context, userID, postagemID string) error {
+	query := `
+		INSERT INTO favoritos (usuario_id, postagem_id) VALUES ($1, $2)
+		ON CONFLICT DO NOTHING;
+	`
+
+	_, err := r.DB.ExecContext(ctx, query, userID, postagemID)
+	if err != nil {
+		return fmt.Errorf("erro ao favoritar postagem: %w", err)
+	}
+
+	return nil
+}
+
+func (r Repository) DesfavoritarPostagem(ctx context.Context, userID, postagemID string) error {
+	query := `
+		DELETE FROM favoritos WHERE usuario_id = $1 AND postagem_id = $2;
+	`
+
+	_, err := r.DB.ExecContext(ctx, query, userID, postagemID)
+	if err != nil {
+		return fmt.Errorf("erro ao desfavoritar postagem: %w", err)
+	}
+
+	return nil
+}
+
+func (r Repository) GetFavoritosByID(ctx context.Context, userID string) (Favoritos, error) {
+	query := `
+		SELECT 
+			id, 
+			postagem_id, 
+			criado_em
+		FROM favoritos
+		WHERE usuario_id = $1;
+	`
+
+	rows, err := r.DB.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var favoritos Favoritos
+
+	for rows.Next() {
+		var f Favorito
+		if err := rows.Scan(&f.ID, &f.PostagemID, &f.CriadoEm); err != nil {
+			return nil, err
+		}
+		favoritos = append(favoritos, f)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return favoritos, nil
 }

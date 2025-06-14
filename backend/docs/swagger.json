@@ -4,7 +4,229 @@
         "contact": {}
     },
     "paths": {
+        "/favoritos": {
+            "post": {
+                "description": "Marca uma postagem como favorita para um usuário.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favoritos"
+                ],
+                "summary": "Favoritar uma postagem",
+                "parameters": [
+                    {
+                        "description": "Dados para favoritar postagem",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/postagemhandler.FavoritarPostagemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Request inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao favoritar",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove uma postagem dos favoritos de um usuário.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favoritos"
+                ],
+                "summary": "Desfavoritar uma postagem",
+                "parameters": [
+                    {
+                        "description": "Dados para desfavoritar postagem",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/postagemhandler.DesfavoritarPostagemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Request inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao desfavoritar",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/favoritos/{user_id}": {
+            "get": {
+                "description": "Retorna a lista de favoritos para um usuário específico.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favoritos"
+                ],
+                "summary": "Lista favoritos de um usuário",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/postagemrepo.Favorito"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "userID obrigatório",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao buscar favoritos",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/postagens": {
+            "get": {
+                "description": "Retorna uma lista de postagens de acordo com os filtros fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Lista postagens com filtros opcionais",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Categoria da postagem",
+                        "name": "categoria",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordernacao das datas DESC ou ASC",
+                        "name": "ordenacao",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número máximo de postagens por página",
+                        "name": "limite",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número da página de resultados",
+                        "name": "pagina",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/postagemrepo.Postagem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao listar postagens",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Atualiza os dados de uma postagem específica com base no JSON recebido",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Atualiza uma postagem",
+                "parameters": [
+                    {
+                        "description": "Dados para edição da postagem",
+                        "name": "postagem",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/postagemrepo.PostagemEdicao"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mensagem de sucesso"
+                    },
+                    "400": {
+                        "description": "Requisição inválida"
+                    },
+                    "500": {
+                        "description": "Erro interno ao atualizar postagem"
+                    }
+                }
+            },
             "post": {
                 "description": "Cria uma nova postagem no sistema com os dados fornecidos no corpo da requisição",
                 "consumes": [
@@ -43,6 +265,44 @@
                     },
                     "500": {
                         "description": "Erro ao salvar postagem",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/postagens/{id}": {
+            "delete": {
+                "description": "Remove uma postagem do sistema.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Deletar uma postagem",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da postagem",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Postagem deletada com sucesso"
+                    },
+                    "400": {
+                        "description": "ID inválido",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao deletar postagem",
                         "schema": {
                             "type": "string"
                         }
@@ -134,6 +394,52 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Deleta uma imagem do S3 e remove a URL do campo imagem_url da tabela postagens",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "postagens"
+                ],
+                "summary": "Remove uma imagem da postagem",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID da Postagem",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "URL da imagem a ser removida",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/imagenshandler.DeletarImagemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Imagem deletada com sucesso",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida"
+                    },
+                    "500": {
+                        "description": "Erro interno"
+                    }
+                }
             }
         },
         "/trocas": {
@@ -223,10 +529,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/propostarepo.PropostaFormatada"
-                                }
+                                "$ref": "#/definitions/propostarepo.PropostaFormatada"
                             }
                         }
                     },
@@ -495,6 +798,36 @@
         }
     },
     "definitions": {
+        "imagenshandler.DeletarImagemRequest": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemhandler.DesfavoritarPostagemRequest": {
+            "type": "object",
+            "properties": {
+                "postagem_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemhandler.FavoritarPostagemRequest": {
+            "type": "object",
+            "properties": {
+                "postagem_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "postagemhandler.PostagemResponse": {
             "type": "object",
             "properties": {
@@ -502,6 +835,81 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemrepo.Favorito": {
+            "type": "object",
+            "properties": {
+                "criado_em": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "postagem_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemrepo.Postagem": {
+            "type": "object",
+            "properties": {
+                "bairro": {
+                    "type": "string"
+                },
+                "categoria": {
+                    "type": "string"
+                },
+                "cidade": {
+                    "type": "string"
+                },
+                "criacao_em": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "estado": {
+                    "type": "string"
+                },
+                "imagens": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "nome_usuario": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "titulo": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "postagemrepo.PostagemEdicao": {
+            "type": "object",
+            "properties": {
+                "categoria": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "titulo": {
                     "type": "string"
                 }
             }

@@ -34,7 +34,7 @@ func NewHandler(svc PropostaSvc) *Handler {
 // @Param        tipo  query    string  true  "Tipo de proposta (enviadas ou recebidas)"
 // @Param        status query   string  false "Status da proposta (pendente, aceita, recusada)"
 // @Produce      json
-// @Success      200  {array}   []propostarepo.PropostaFormatada
+// @Success      200  {array}   propostarepo.PropostaFormatada
 // @Failure      500  {string}  string
 // @Router       /trocas/{id}/historico [get]
 func (h *Handler) GetPropostas(w http.ResponseWriter, r *http.Request) {

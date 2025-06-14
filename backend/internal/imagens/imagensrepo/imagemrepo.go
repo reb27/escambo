@@ -1,6 +1,7 @@
 package imagensrepo
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -57,4 +58,40 @@ func (r Repository) SalvarImagem(dados Metadata) error {
 
 	_, err = r.DB.Exec(queryUpdate, string(newJSON), dados.ID)
 	return err
+}
+
+func (r Repository) RemoverImagemDaPostagem(ctx context.Context, postagemID string, targetURL string) error {
+	var imagens []string
+
+	querySelect := `SELECT imagem_url FROM postagens WHERE id = $1`
+	row := r.DB.QueryRowContext(ctx, querySelect, postagemID)
+
+	var imagensJSON []byte
+	if err := row.Scan(&imagensJSON); err != nil {
+		return fmt.Errorf("erro ao buscar imagem_url: %w", err)
+	}
+
+	if err := json.Unmarshal(imagensJSON, &imagens); err != nil {
+		return fmt.Errorf("erro ao fazer unmarshal do json: %w", err)
+	}
+
+	var novasImagens []string
+	for _, img := range imagens {
+		if img != targetURL {
+			novasImagens = append(novasImagens, img)
+		}
+	}
+
+	imagensAtualizadasJSON, err := json.Marshal(novasImagens)
+	if err != nil {
+		return fmt.Errorf("erro ao fazer marshal das novas imagens: %w", err)
+	}
+
+	queryUpdate := `UPDATE postagens SET imagem_url = $1 WHERE id = $2`
+	_, err = r.DB.ExecContext(ctx, queryUpdate, imagensAtualizadasJSON, postagemID)
+	if err != nil {
+		return fmt.Errorf("erro ao atualizar imagem_url: %w", err)
+	}
+
+	return nil
 }

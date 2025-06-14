@@ -1,9 +1,77 @@
 definitions:
+  imagenshandler.DeletarImagemRequest:
+    properties:
+      url:
+        type: string
+    type: object
+  postagemhandler.DesfavoritarPostagemRequest:
+    properties:
+      postagem_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  postagemhandler.FavoritarPostagemRequest:
+    properties:
+      postagem_id:
+        type: string
+      user_id:
+        type: string
+    type: object
   postagemhandler.PostagemResponse:
     properties:
       id:
         type: string
       message:
+        type: string
+    type: object
+  postagemrepo.Favorito:
+    properties:
+      criado_em:
+        type: string
+      id:
+        type: string
+      postagem_id:
+        type: string
+    type: object
+  postagemrepo.Postagem:
+    properties:
+      bairro:
+        type: string
+      categoria:
+        type: string
+      cidade:
+        type: string
+      criacao_em:
+        type: string
+      descricao:
+        type: string
+      estado:
+        type: string
+      imagens:
+        items:
+          type: string
+        type: array
+      nome_usuario:
+        type: string
+      status:
+        type: boolean
+      titulo:
+        type: string
+      user_id:
+        type: string
+    type: object
+  postagemrepo.PostagemEdicao:
+    properties:
+      categoria:
+        type: string
+      descricao:
+        type: string
+      id:
+        type: string
+      status:
+        type: boolean
+      titulo:
         type: string
     type: object
   postagemsvc.Postagem:
@@ -101,7 +169,130 @@ definitions:
 info:
   contact: {}
 paths:
+  /favoritos:
+    delete:
+      consumes:
+      - application/json
+      description: Remove uma postagem dos favoritos de um usuário.
+      parameters:
+      - description: Dados para desfavoritar postagem
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postagemhandler.DesfavoritarPostagemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Request inválido
+          schema:
+            type: string
+        "500":
+          description: Erro ao desfavoritar
+          schema:
+            type: string
+      summary: Desfavoritar uma postagem
+      tags:
+      - favoritos
+    post:
+      consumes:
+      - application/json
+      description: Marca uma postagem como favorita para um usuário.
+      parameters:
+      - description: Dados para favoritar postagem
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/postagemhandler.FavoritarPostagemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Request inválido
+          schema:
+            type: string
+        "500":
+          description: Erro ao favoritar
+          schema:
+            type: string
+      summary: Favoritar uma postagem
+      tags:
+      - favoritos
+  /favoritos/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retorna a lista de favoritos para um usuário específico.
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/postagemrepo.Favorito'
+            type: array
+        "400":
+          description: userID obrigatório
+          schema:
+            type: string
+        "500":
+          description: Erro ao buscar favoritos
+          schema:
+            type: string
+      summary: Lista favoritos de um usuário
+      tags:
+      - favoritos
   /postagens:
+    get:
+      consumes:
+      - application/json
+      description: Retorna uma lista de postagens de acordo com os filtros fornecidos
+      parameters:
+      - description: Categoria da postagem
+        in: query
+        name: categoria
+        type: string
+      - description: Ordernacao das datas DESC ou ASC
+        in: query
+        name: ordenacao
+        type: string
+      - description: Número máximo de postagens por página
+        in: query
+        name: limite
+        type: integer
+      - description: Número da página de resultados
+        in: query
+        name: pagina
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/postagemrepo.Postagem'
+            type: array
+        "500":
+          description: Erro ao listar postagens
+          schema:
+            type: string
+      summary: Lista postagens com filtros opcionais
+      tags:
+      - postagens
     post:
       consumes:
       - application/json
@@ -132,6 +323,54 @@ paths:
       summary: Insere uma nova postagem
       tags:
       - postagens
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os dados de uma postagem específica com base no JSON recebido
+      parameters:
+      - description: Dados para edição da postagem
+        in: body
+        name: postagem
+        required: true
+        schema:
+          $ref: '#/definitions/postagemrepo.PostagemEdicao'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mensagem de sucesso
+        "400":
+          description: Requisição inválida
+        "500":
+          description: Erro interno ao atualizar postagem
+      summary: Atualiza uma postagem
+      tags:
+      - postagens
+  /postagens/{id}:
+    delete:
+      description: Remove uma postagem do sistema.
+      parameters:
+      - description: ID da postagem
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Postagem deletada com sucesso
+        "400":
+          description: ID inválido
+          schema:
+            type: string
+        "500":
+          description: Erro ao deletar postagem
+          schema:
+            type: string
+      summary: Deletar uma postagem
+      tags:
+      - postagens
   /postagens/{id}/detalhes:
     get:
       consumes:
@@ -158,6 +397,38 @@ paths:
       tags:
       - postagens
   /postagens/{id}/imagem:
+    delete:
+      consumes:
+      - application/json
+      deprecated: true
+      description: Deleta uma imagem do S3 e remove a URL do campo imagem_url da tabela
+        postagens
+      parameters:
+      - description: ID da Postagem
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: URL da imagem a ser removida
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/imagenshandler.DeletarImagemRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Imagem deletada com sucesso
+          schema:
+            type: string
+        "400":
+          description: Requisição inválida
+        "500":
+          description: Erro interno
+      summary: Remove uma imagem da postagem
+      tags:
+      - postagens
     post:
       consumes:
       - multipart/form-data
@@ -248,9 +519,7 @@ paths:
           description: OK
           schema:
             items:
-              items:
-                $ref: '#/definitions/propostarepo.PropostaFormatada'
-              type: array
+              $ref: '#/definitions/propostarepo.PropostaFormatada'
             type: array
         "500":
           description: Internal Server Error

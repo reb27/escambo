@@ -2,14 +2,20 @@ package postagemsvc
 
 import (
 	"context"
-	"errors"
 	"escambo/internal/postagem/postagemrepo"
+	"fmt"
+	"strings"
 )
 
 type PostagemRepository interface {
 	InsertPostagem(ctx context.Context, post postagemrepo.Postagem) (string, error)
 	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Postagem, error)
-	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error)
+	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem, offset int) ([]postagemrepo.Postagem, error)
+	FavoritarPostagem(ctx context.Context, userID, postagemID string) error
+	DesfavoritarPostagem(ctx context.Context, userID, postagemID string) error
+	GetFavoritosByID(ctx context.Context, userID string) (postagemrepo.Favoritos, error)
+	DeletarPostagem(ctx context.Context, postagemID string) error
+	UpdatePostagem(ctx context.Context, postagem postagemrepo.PostagemEdicao) error
 }
 
 type Service struct {
@@ -59,10 +65,48 @@ func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Po
 }
 
 func (s Service) GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error) {
-	postagens, err := s.PostagemRepo.GetPostagens(ctx, filtro)
+	limite := filtro.Limite
+	if limite <= 0 {
+		filtro.Limite = 10
+	}
+	offset := (filtro.Pagina - 1) * limite
+	if offset < 0 {
+		offset = 0
+	}
+
+	filtro.Ordenacao = strings.ToLower(filtro.Ordenacao)
+	if filtro.Ordenacao != "asc" && filtro.Ordenacao != "desc" {
+		filtro.Ordenacao = "desc"
+	}
+
+	postagens, err := s.PostagemRepo.GetPostagens(ctx, filtro, offset)
 	if err != nil {
-		return []postagemrepo.Postagem{}, errors.New("erro ao listar postagens")
+		return nil, fmt.Errorf("erro ao listar postagens: %w", err)
 	}
 
 	return postagens, nil
+}
+
+func (s Service) UpdatePostagem(ctx context.Context, post postagemrepo.PostagemEdicao) error {
+	err := s.PostagemRepo.UpdatePostagem(ctx, post)
+	if err != nil {
+		return fmt.Errorf("erro ao atualizar postagem: %w", err)
+	}
+	return nil
+}
+
+func (s Service) DeletarPostagem(ctx context.Context, postagemID string) error {
+	return s.PostagemRepo.DeletarPostagem(ctx, postagemID)
+}
+
+func (s Service) FavoritarPostagem(ctx context.Context, userID, postagemID string) error {
+	return s.PostagemRepo.FavoritarPostagem(ctx, userID, postagemID)
+}
+
+func (s Service) DesfavoritarPostagem(ctx context.Context, userID, postagemID string) error {
+	return s.PostagemRepo.DesfavoritarPostagem(ctx, userID, postagemID)
+}
+
+func (s Service) GetFavoritosByID(ctx context.Context, userID string) (postagemrepo.Favoritos, error) {
+	return s.PostagemRepo.GetFavoritosByID(ctx, userID)
 }

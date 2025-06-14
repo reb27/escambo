@@ -9,11 +9,19 @@ type Postagem struct {
 	Descricao   string    `json:"descricao"`
 	Imagens     []string  `json:"imagens"`
 	UserID      string    `json:"user_id"`
+	Status      bool      `json:"status"`
 	NomeUsuario string    `json:"nome_usuario"`
 	Categoria   string    `json:"categoria"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"criacao_em"`
 	Endereco
+}
+
+type PostagemEdicao struct {
+	ID        string  `json:"id,omitempty"`
+	Titulo    *string `json:"titulo"`
+	Descricao *string `json:"descricao"`
+	Status    *bool   `json:"status"`
+	Categoria *string `json:"categoria"`
 }
 
 type Endereco struct {
@@ -23,11 +31,16 @@ type Endereco struct {
 }
 
 type FiltroPostagem struct {
-	Categoria    string
-	Cidade       string
-	Estado       string
-	PalavraChave string
-	Ordenacao    string
-	De           time.Time
-	Ate          time.Time
+	Categoria string
+	Ordenacao string
+	Limite    int
+	Pagina    int
 }
+
+type Favorito struct {
+	ID         string    `json:"id"`
+	PostagemID string    `json:"postagem_id"`
+	CriadoEm   time.Time `json:"criado_em"`
+}
+
+type Favoritos []Favorito
