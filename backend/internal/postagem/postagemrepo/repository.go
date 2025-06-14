@@ -50,7 +50,6 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 			user_id, 
 			categoria,
 			created_at, 
-			updated_at,
 			imagem_url
 		FROM postagens
 		WHERE id = $1;
