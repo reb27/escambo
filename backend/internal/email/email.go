@@ -142,13 +142,11 @@ func IniciarEnvioPeriodico(db *sql.DB, intervalo time.Duration) {
 
 		imgURL := ""
 		if len(itemImageRaw) > 0 {
-			var itemImageData map[string]interface{}
-			if err := json.Unmarshal(itemImageRaw, &itemImageData); err != nil {
+			var urls []string
+			if err := json.Unmarshal(itemImageRaw, &urls); err != nil {
 				log.Printf("Erro ao parsear imagem JSON: %v", err)
-			} else {
-				if url, ok := itemImageData["url"].(string); ok {
-					imgURL = url
-				}
+			} else if len(urls) > 0 {
+				imgURL = urls[0]
 			}
 		}
 
