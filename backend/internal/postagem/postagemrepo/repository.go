@@ -84,6 +84,7 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 	fmt.Println("categoria: ", filtro.Categoria)
 	query := fmt.Sprintf(`
 		SELECT 
+			p.id,
 			p.ativa,
 			p.titulo, 
 			p.descricao, 
@@ -117,6 +118,7 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 		var imagensJSON *string
 
 		err := rows.Scan(
+			&post.ID,
 			&post.Status,
 			&post.Titulo,
 			&post.Descricao,

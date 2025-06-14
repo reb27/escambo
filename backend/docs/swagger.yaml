@@ -48,6 +48,8 @@ definitions:
         type: string
       estado:
         type: string
+      id:
+        type: string
       imagens:
         items:
           type: string

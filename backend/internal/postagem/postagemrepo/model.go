@@ -5,6 +5,7 @@ import (
 )
 
 type Postagem struct {
+	ID          string    `json:"id"`
 	Titulo      string    `json:"titulo"`
 	Descricao   string    `json:"descricao"`
 	Imagens     []string  `json:"imagens"`

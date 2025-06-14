@@ -885,6 +885,9 @@ const docTemplate = `{
                 "estado": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "imagens": {
                     "type": "array",
                     "items": {
