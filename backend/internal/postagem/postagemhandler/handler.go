@@ -236,18 +236,18 @@ func (h Handler) DesfavoritarPostagem(w http.ResponseWriter, r *http.Request) {
 // @Tags favoritos
 // @Accept json
 // @Produce json
-// @Param userID path string true "ID do usuário"
+// @Param id path string true "ID do usuário"
 // @Success 200 {array} postagemrepo.Favorito
 // @Failure 400 {string} string "userID obrigatório"
 // @Failure 500 {string} string "Erro ao buscar favoritos"
-// @Router /favoritos/{user_id} [get]
+// @Router /favoritos/{id} [get]
 func (h Handler) GetFavoritosByUserID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	vars := mux.Vars(r)
-	userID := vars["user_id"]
+	userID := vars["id"]
 	if userID == "" {
-		http.Error(w, "user_id obrigatório", http.StatusBadRequest)
+		http.Error(w, "id obrigatório", http.StatusBadRequest)
 		return
 	}
 

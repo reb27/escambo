@@ -37,7 +37,7 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 
 	r.HandleFunc("/favoritos", postHandler.FavoritarPostagem).Methods("POST")
 	r.HandleFunc("/favoritos", postHandler.DesfavoritarPostagem).Methods("DELETE")
-	r.HandleFunc("/favoritos/{user_id}", postHandler.GetFavoritosByUserID).Methods("GET")
+	r.HandleFunc("/favoritos/{id}", postHandler.GetFavoritosByUserID).Methods("GET")
 
 	userRepo := usuariorepo.NewRepository(db)
 	usuarioService := usuariosvc.NewService(userRepo)

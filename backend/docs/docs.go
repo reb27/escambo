@@ -99,7 +99,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/favoritos/{user_id}": {
+        "/favoritos/{id}": {
             "get": {
                 "description": "Retorna a lista de favoritos para um usuário específico.",
                 "consumes": [
@@ -116,7 +116,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "ID do usuário",
-                        "name": "userID",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }

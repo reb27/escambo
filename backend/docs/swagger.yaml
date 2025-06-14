@@ -224,7 +224,7 @@ paths:
       summary: Favoritar uma postagem
       tags:
       - favoritos
-  /favoritos/{user_id}:
+  /favoritos/{id}:
     get:
       consumes:
       - application/json
@@ -232,7 +232,7 @@ paths:
       parameters:
       - description: ID do usuário
         in: path
-        name: userID
+        name: id
         required: true
         type: string
       produces:
