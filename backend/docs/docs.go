@@ -1056,10 +1056,28 @@ const docTemplate = `{
         "usuariorepo.WriteUsuario": {
             "type": "object",
             "properties": {
+                "bairro": {
+                    "type": "string"
+                },
+                "cep": {
+                    "type": "string"
+                },
+                "cidade": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
+                "estado": {
+                    "type": "string"
+                },
                 "nome": {
+                    "type": "string"
+                },
+                "numero": {
+                    "type": "integer"
+                },
+                "rua": {
                     "type": "string"
                 },
                 "senha": {
