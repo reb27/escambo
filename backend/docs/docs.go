@@ -127,7 +127,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/postagemrepo.Favorito"
+                                "$ref": "#/definitions/postagemrepo.Postagem"
                             }
                         }
                     },
@@ -846,20 +846,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "postagemrepo.Favorito": {
-            "type": "object",
-            "properties": {
-                "criado_em": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "postagem_id": {
                     "type": "string"
                 }
             }

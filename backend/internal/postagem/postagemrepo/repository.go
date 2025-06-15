@@ -277,14 +277,26 @@ func (r Repository) DesfavoritarPostagem(ctx context.Context, userID, postagemID
 	return nil
 }
 
-func (r Repository) GetFavoritosByID(ctx context.Context, userID string) (Favoritos, error) {
+func (r Repository) GetFavoritosByID(ctx context.Context, userID string) ([]Postagem, error) {
 	query := `
 		SELECT 
-			id, 
-			postagem_id, 
-			criado_em
-		FROM favoritos
-		WHERE usuario_id = $1;
+			p.id,
+			p.ativa,
+			p.titulo, 
+			p.descricao, 
+			p.categoria, 
+			p.imagem_url,
+			p.user_id,
+			p.created_at,
+			u.nome AS nome_usuario,
+			e.cidade,
+			e.estado,
+			e.bairro
+		FROM favoritos f
+		JOIN postagens p ON p.id = f.postagem_id
+		JOIN usuarios u ON u.id = p.user_id
+		JOIN endereco e ON e.user_id = u.id
+		WHERE f.usuario_id = $1;
 	`
 
 	rows, err := r.DB.QueryContext(ctx, query, userID)
@@ -293,13 +305,33 @@ func (r Repository) GetFavoritosByID(ctx context.Context, userID string) (Favori
 	}
 	defer rows.Close()
 
-	var favoritos Favoritos
+	var favoritos []Postagem
 
 	for rows.Next() {
-		var f Favorito
-		if err := rows.Scan(&f.ID, &f.PostagemID, &f.CriadoEm); err != nil {
+		var f Postagem
+		var imagemURL []byte
+
+		if err := rows.Scan(
+			&f.ID,
+			&f.Status,
+			&f.Titulo,
+			&f.Descricao,
+			&f.Categoria,
+			&imagemURL,
+			&f.UserID,
+			&f.CreatedAt,
+			&f.NomeUsuario,
+			&f.Cidade,
+			&f.Estado,
+			&f.Bairro,
+		); err != nil {
 			return nil, err
 		}
+
+		if err := json.Unmarshal(imagemURL, &f.Imagens); err != nil {
+			return nil, err
+		}
+
 		favoritos = append(favoritos, f)
 	}
 

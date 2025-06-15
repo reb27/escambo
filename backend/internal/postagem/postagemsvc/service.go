@@ -13,7 +13,7 @@ type PostagemRepository interface {
 	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem, offset int) ([]postagemrepo.Postagem, error)
 	FavoritarPostagem(ctx context.Context, userID, postagemID string) error
 	DesfavoritarPostagem(ctx context.Context, userID, postagemID string) error
-	GetFavoritosByID(ctx context.Context, userID string) (postagemrepo.Favoritos, error)
+	GetFavoritosByID(ctx context.Context, userID string) ([]postagemrepo.Postagem, error)
 	DeletarPostagem(ctx context.Context, postagemID string) error
 	UpdatePostagem(ctx context.Context, postagem postagemrepo.PostagemEdicao) error
 }

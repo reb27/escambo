@@ -10,7 +10,7 @@ type Postagem struct {
 	Descricao   string    `json:"descricao"`
 	Imagens     []string  `json:"imagens"`
 	UserID      string    `json:"user_id"`
-	Status      bool      `json:"status"`
+	Status      bool      `json:"ativa"`
 	NomeUsuario string    `json:"nome_usuario"`
 	Categoria   string    `json:"categoria"`
 	CreatedAt   time.Time `json:"criacao_em"`
@@ -44,4 +44,4 @@ type Favorito struct {
 	CriadoEm   time.Time `json:"criado_em"`
 }
 
-type Favoritos []Favorito
+type Favoritos []Postagem

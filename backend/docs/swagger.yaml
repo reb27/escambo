@@ -25,15 +25,6 @@ definitions:
       message:
         type: string
     type: object
-  postagemrepo.Favorito:
-    properties:
-      criado_em:
-        type: string
-      id:
-        type: string
-      postagem_id:
-        type: string
-    type: object
   postagemrepo.Postagem:
     properties:
       bairro:
@@ -256,7 +247,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/postagemrepo.Favorito'
+              $ref: '#/definitions/postagemrepo.Postagem'
             type: array
         "400":
           description: userID obrigatório

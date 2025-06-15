@@ -237,7 +237,7 @@ func (h Handler) DesfavoritarPostagem(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID do usuário"
-// @Success 200 {array} postagemrepo.Favorito
+// @Success 200 {array} postagemrepo.Postagem
 // @Failure 400 {string} string "userID obrigatório"
 // @Failure 500 {string} string "Erro ao buscar favoritos"
 // @Router /favoritos/{id} [get]
