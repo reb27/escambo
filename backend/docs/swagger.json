@@ -407,7 +407,6 @@
                     "postagens"
                 ],
                 "summary": "Remove uma imagem da postagem",
-                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -842,6 +841,9 @@
         "postagemrepo.Postagem": {
             "type": "object",
             "properties": {
+                "ativa": {
+                    "type": "boolean"
+                },
                 "bairro": {
                     "type": "string"
                 },
@@ -871,9 +873,6 @@
                 },
                 "nome_usuario": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
                 },
                 "titulo": {
                     "type": "string"

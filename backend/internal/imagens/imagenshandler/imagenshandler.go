@@ -63,7 +63,6 @@ func (h *Handler) UploadImagemPostagem(w http.ResponseWriter, r *http.Request) {
 // @Tags         postagens
 // @Accept       json
 // @Produce      json
-// @Deprecated
 // @Param        id   path      string  true  "ID da Postagem"
 // @Param        body body      DeletarImagemRequest true "URL da imagem a ser removida"
 // @Success      204  {string}  "Imagem deletada com sucesso"

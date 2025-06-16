@@ -27,6 +27,8 @@ definitions:
     type: object
   postagemrepo.Postagem:
     properties:
+      ativa:
+        type: boolean
       bairro:
         type: string
       categoria:
@@ -47,8 +49,6 @@ definitions:
         type: array
       nome_usuario:
         type: string
-      status:
-        type: boolean
       titulo:
         type: string
       user_id:
@@ -405,7 +405,6 @@ paths:
     delete:
       consumes:
       - application/json
-      deprecated: true
       description: Deleta uma imagem do S3 e remove a URL do campo imagem_url da tabela
         postagens
       parameters:

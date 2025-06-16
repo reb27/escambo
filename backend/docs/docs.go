@@ -418,7 +418,6 @@ const docTemplate = `{
                     "postagens"
                 ],
                 "summary": "Remove uma imagem da postagem",
-                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -853,6 +852,9 @@ const docTemplate = `{
         "postagemrepo.Postagem": {
             "type": "object",
             "properties": {
+                "ativa": {
+                    "type": "boolean"
+                },
                 "bairro": {
                     "type": "string"
                 },
@@ -882,9 +884,6 @@ const docTemplate = `{
                 },
                 "nome_usuario": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
                 },
                 "titulo": {
                     "type": "string"
