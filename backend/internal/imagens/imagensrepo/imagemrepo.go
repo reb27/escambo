@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 type Repository struct {
@@ -68,10 +69,12 @@ func (r Repository) RemoverImagemDaPostagem(ctx context.Context, postagemID stri
 
 	var imagensJSON []byte
 	if err := row.Scan(&imagensJSON); err != nil {
+		log.Println(err)
 		return fmt.Errorf("erro ao buscar imagem_url: %w", err)
 	}
 
 	if err := json.Unmarshal(imagensJSON, &imagens); err != nil {
+		log.Println(err)
 		return fmt.Errorf("erro ao fazer unmarshal do json: %w", err)
 	}
 
@@ -84,14 +87,19 @@ func (r Repository) RemoverImagemDaPostagem(ctx context.Context, postagemID stri
 
 	imagensAtualizadasJSON, err := json.Marshal(novasImagens)
 	if err != nil {
+		log.Println(err)
 		return fmt.Errorf("erro ao fazer marshal das novas imagens: %w", err)
 	}
 
 	queryUpdate := `UPDATE postagens SET imagem_url = $1 WHERE id = $2`
 	_, err = r.DB.ExecContext(ctx, queryUpdate, imagensAtualizadasJSON, postagemID)
 	if err != nil {
+		log.Println(err)
+
 		return fmt.Errorf("erro ao atualizar imagem_url: %w", err)
 	}
+
+	log.Println("SUCCESS update image list")
 
 	return nil
 }

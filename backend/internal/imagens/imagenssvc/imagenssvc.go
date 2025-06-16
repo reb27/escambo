@@ -82,7 +82,7 @@ func (s Service) DeletarImagemPostagem(ctx context.Context, postagemID, url stri
 		return fmt.Errorf("erro ao deletar imagem do S3: %w", err)
 	}
 
-	err = s.DeletarImagemPostagem(ctx, postagemID, url)
+	err = s.repo.RemoverImagemDaPostagem(ctx, postagemID, url)
 	if err != nil {
 		return fmt.Errorf("erro ao deletar imagem da tabela de postagens: %w", err)
 	}
@@ -96,7 +96,12 @@ func (s Service) deletarImagem(ctx context.Context, url string) error {
 		return fmt.Errorf("URL não é compatível com o padrão esperado")
 	}
 
+	log.Print("prefix: ", prefix)
+
 	key := strings.TrimPrefix(url, prefix)
+
+	log.Print("key: ", key)
+	log.Print("bucket: ", s.bucket)
 
 	_, err := s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(s.bucket),
