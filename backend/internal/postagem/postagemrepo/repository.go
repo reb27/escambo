@@ -80,8 +80,6 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 }
 
 func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, offset int) ([]Postagem, error) {
-
-	fmt.Println("categoria: ", filtro.Categoria)
 	query := fmt.Sprintf(`
 		SELECT 
 			p.id,
@@ -101,11 +99,12 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 		JOIN endereco e ON e.user_id = u.id
 		WHERE p.ativa = TRUE
 			AND (NULLIF($1, '') IS NULL OR p.categoria = $1)
+			AND (NULLIF($4, '') IS NULL OR p.user_id = $4::uuid)
 		ORDER BY p.created_at %s
 		LIMIT $2 OFFSET $3
 	`, filtro.Ordenacao)
 
-	rows, err := r.DB.QueryContext(ctx, query, filtro.Categoria, filtro.Limite, offset)
+	rows, err := r.DB.QueryContext(ctx, query, filtro.Categoria, filtro.Limite, offset, filtro.UsuarioID)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao executar query: %w", err)
 	}

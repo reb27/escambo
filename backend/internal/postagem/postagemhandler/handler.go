@@ -129,18 +129,18 @@ func (h Handler) DeletarPostagem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// GetPostagens godoc
 // @Summary Lista postagens com filtros opcionais
 // @Description Retorna uma lista de postagens de acordo com os filtros fornecidos
 // @Tags postagens
 // @Accept json
 // @Produce json
 // @Param categoria query string false "Categoria da postagem"
-// @Param ordenacao query string false "Ordernacao das datas DESC ou ASC"
+// @Param id_usuario query string false "ID de um usuario"
+// @Param ordenacao query string false "Ordenação das datas DESC ou ASC"
 // @Param limite query int false "Número máximo de postagens por página"
 // @Param pagina query int false "Número da página de resultados"
 // @Success 200 {array} postagemrepo.Postagem
-// @Failure      500   {string} string "Erro ao listar postagens"
+// @Failure 500 {string} string "Erro ao listar postagens"
 // @Router /postagens [get]
 func (h Handler) GetPostagens(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -149,15 +149,16 @@ func (h Handler) GetPostagens(w http.ResponseWriter, r *http.Request) {
 	filtro := postagemrepo.FiltroPostagem{
 		Categoria: query.Get("categoria"),
 		Ordenacao: query.Get("ordenacao"),
+		UsuarioID: query.Get("id_usuario"),
 	}
 
 	if limiteStr := query.Get("limite"); limiteStr != "" {
-		if limite, err := strconv.Atoi(limiteStr); err == nil {
+		if limite, err := strconv.Atoi(limiteStr); err == nil && limite > 0 {
 			filtro.Limite = limite
 		}
 	}
 	if paginaStr := query.Get("pagina"); paginaStr != "" {
-		if pagina, err := strconv.Atoi(paginaStr); err == nil {
+		if pagina, err := strconv.Atoi(paginaStr); err == nil && pagina > 0 {
 			filtro.Pagina = pagina
 		}
 	}

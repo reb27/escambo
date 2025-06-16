@@ -270,7 +270,11 @@ paths:
         in: query
         name: categoria
         type: string
-      - description: Ordernacao das datas DESC ou ASC
+      - description: ID de um usuario
+        in: query
+        name: id_usuario
+        type: string
+      - description: Ordenação das datas DESC ou ASC
         in: query
         name: ordenacao
         type: string

@@ -168,7 +168,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Ordernacao das datas DESC ou ASC",
+                        "description": "ID de um usuario",
+                        "name": "id_usuario",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordenação das datas DESC ou ASC",
                         "name": "ordenacao",
                         "in": "query"
                     },

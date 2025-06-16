@@ -34,6 +34,7 @@ type Endereco struct {
 type FiltroPostagem struct {
 	Categoria string
 	Ordenacao string
+	UsuarioID string
 	Limite    int
 	Pagina    int
 }
