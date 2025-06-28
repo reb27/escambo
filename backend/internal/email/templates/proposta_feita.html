@@ -1,79 +1,78 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      color: #333;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body style="font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; color: #333; padding: 20px; margin:0;">
+
+  <div style="
+    background-color: #f4fdf7;
+    border: 1px solid #c2e8d3;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 600px;
+    margin: auto;
+  ">
+    <div style="
+      background-color: #28a745;
+      color: white;
       padding: 20px;
-    }
-
-    .container {
-      background-color: #e6f9ec;
-      border-radius: 10px;
-      padding: 30px;
-      max-width: 600px;
-      margin: auto;
-      border: 1px solid #b6e2c2;
-    }
-
-    .header {
-      text-align: center;
-      padding-bottom: 20px;
-    }
-
-    .item-image {
-      width: 100%;
-      max-width: 200px;
-      display: block;
-      margin: 10px auto;
       border-radius: 8px;
-    }
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 1.5rem;
+    ">
+      📦 {{.HeaderMessage}}
+    </div>
 
-    .button {
+    <p style="margin: 8px 0;"><strong>Interessado no seu produto:</strong> {{.OtherUserName}}</p>
+    <p style="margin: 8px 0;"><strong>Título da sua postagem:</strong> {{.ItemName}}</p>
+    <p style="margin: 8px 0;"><strong>Categoria:</strong> {{.ItemCategory}}</p>
+    <p style="margin: 8px 0;"><strong>Data:</strong> {{.ProposalDate}}</p>
+    <p style="margin: 8px 0;"><strong>Status:</strong> {{.ProposalStatus}}</p>
+
+    {{if .ItemImageURL}}
+      <img
+        src="{{.ItemImageURL}}"
+        alt="Imagem do item: {{.ItemName}}"
+        style="
+          width: 100%;
+          max-width: 200px;
+          display: block;
+          margin: 10px auto;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        "
+      />
+    {{end}}
+
+    <a href="{{.ProposalLink}}" style="
       display: inline-block;
-      padding: 10px 20px;
+      padding: 12px 24px;
       margin-top: 20px;
-      background-color: #f8fcf8;
+      background-color: #28a745;
       color: white !important;
       text-decoration: none;
-      border-radius: 5px;
-    }
+      border-radius: 6px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    ">
+      Visualizar Proposta
+    </a>
 
-    .footer {
+    <div style="
       font-size: 12px;
       margin-top: 30px;
       color: #777;
       text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>{{.HeaderMessage}}</h2>
-    </div>
-
-    <p><strong>Usuário:</strong> {{.OtherUserName}}</p>
-    <p><strong>Título da Postagem:</strong> {{.ItemName}}</p>
-    <p><strong>Categoria:</strong> {{.ItemCategory}}</p>
-    <p><strong>Data:</strong> {{.ProposalDate}}</p>
-    <p><strong>Status:</strong> {{.ProposalStatus}}</p>
-
-    {{if .ItemImageURL}}
-      <img class="item-image" src="{{.ItemImageURL}}" alt="Imagem do item: {{.ItemName}}">
-    {{end}}
-
-    <a class="button" href="{{.ProposalLink}}">Visualizar Proposta</a>
-
-    <div class="footer">
-      Esta é uma notificação automática da plataforma Escambo Online.<br>
-      Não compartilhe seus dados pessoais fora da plataforma.<br><br>
-      Escambo Online - Rua Exemplo, 123 - Manaus/AM
+      line-height: 1.4;
+    ">
+      Esta é uma notificação automática da plataforma Escambo Online.<br />
+      Não compartilhe seus dados pessoais fora da plataforma.<br /><br />
     </div>
   </div>
+
 </body>
 </html>

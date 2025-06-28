@@ -537,6 +537,18 @@ const docTemplate = `{
                         "description": "Status da proposta (pendente, aceita, recusada)",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limite de resultados (ex: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Deslocamento de resultados (ex: 20)",
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {

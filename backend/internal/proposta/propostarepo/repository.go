@@ -152,7 +152,7 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 		JOIN usuarios ui ON p.interessado_id = ui.id
 	`
 
-	filteredQuery, args := buildWhere(query, filter)
+	filteredQuery, args := buildQuery(query, filter)
 	rows, err := r.DB.QueryContext(ctx, filteredQuery, args...)
 	if err != nil {
 		return nil, err
@@ -209,7 +209,7 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 	return propostas, nil
 }
 
-func buildWhere(baseSQL string, filter PropostasQueryFilter) (string, []interface{}) {
+func buildQuery(baseSQL string, filter PropostasQueryFilter) (string, []interface{}) {
 	conditions := []string{}
 	args := []interface{}{}
 	argIndex := 1
@@ -233,6 +233,9 @@ func buildWhere(baseSQL string, filter PropostasQueryFilter) (string, []interfac
 	if len(conditions) > 0 {
 		baseSQL += " WHERE " + strings.Join(conditions, " AND ")
 	}
+
+	baseSQL += fmt.Sprintf(" ORDER BY p.created_at DESC LIMIT $%d OFFSET $%d", argIndex, argIndex+1)
+	args = append(args, filter.Limit, filter.Offset)
 
 	return baseSQL, args
 }

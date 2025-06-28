@@ -520,6 +520,14 @@ paths:
         in: query
         name: status
         type: string
+      - description: 'Limite de resultados (ex: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Deslocamento de resultados (ex: 20)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:

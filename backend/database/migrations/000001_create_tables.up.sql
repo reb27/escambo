@@ -17,7 +17,7 @@ CREATE TABLE postagens (
   titulo VARCHAR(150) NOT NULL,
   descricao TEXT NOT NULL,
   ativa BOOLEAN DEFAULT true,
-  imagens JSONB,
+  imagem_url JSONB,
   user_id UUID NOT NULL,
   categoria VARCHAR(150) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -37,7 +37,7 @@ CREATE TABLE endereco (
   bairro VARCHAR(100),
   cidade VARCHAR(100),
   estado VARCHAR(2),
-  user_id UUID NOT NULL,
+  user_id UUID NOT NULL UNIQUE, 
   CONSTRAINT fk_endereco_usuarios
     FOREIGN KEY (user_id) REFERENCES usuarios(id)
     ON DELETE CASCADE
@@ -53,7 +53,7 @@ CREATE TABLE propostas (
   status VARCHAR(20) NOT NULL DEFAULT 'pendente'
     CHECK (status IN ('pendente', 'aceita', 'recusada')),
 
-  imagens JSONB,
+  imagem_url JSONB,
   descricao TEXT,
 
   nome VARCHAR(150) NOT NULL DEFAULT '',              -- Adicionado

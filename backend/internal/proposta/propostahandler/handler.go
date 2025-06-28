@@ -7,6 +7,7 @@ import (
 	"escambo/internal/proposta/propostarepo"
 	"escambo/internal/proposta/propostasvc"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -33,6 +34,8 @@ func NewHandler(svc PropostaSvc) *Handler {
 // @Param        id    path     string  true  "ID do usuário"
 // @Param        tipo  query    string  true  "Tipo de proposta (enviadas ou recebidas)"
 // @Param        status query   string  false "Status da proposta (pendente, aceita, recusada)"
+// @Param        limit   query   int     false  "Limite de resultados (ex: 10)"
+// @Param        offset  query   int     false  "Deslocamento de resultados (ex: 20)"
 // @Produce      json
 // @Success      200  {array}   propostarepo.PropostaFormatada
 // @Failure      500  {string}  string
@@ -51,6 +54,8 @@ func (h *Handler) GetPropostas(w http.ResponseWriter, r *http.Request) {
 		UsuarioID: id,
 		Status:    params.Status,
 		Tipo:      params.Tipo,
+		Limit:     params.Limit,
+		Offset:    params.Offset,
 	})
 	if err != nil {
 		http.Error(w, "erro ao buscar propostas: "+err.Error(), http.StatusInternalServerError)
@@ -135,8 +140,23 @@ func getParams(r *http.Request) (GetPropostasParams, error) {
 		return GetPropostasParams{}, errors.New("o parâmetro 'tipo' deve possuir os valores 'enviadas' ou 'recebidas'")
 	}
 
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
 	return GetPropostasParams{
 		Status: statusPtr,
 		Tipo:   tipo,
+		Limit:  limit,
+		Offset: offset,
 	}, nil
 }

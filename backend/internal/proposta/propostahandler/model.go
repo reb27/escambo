@@ -4,6 +4,8 @@ type GetPropostasParams struct {
 	UsuarioID string
 	Status    *string
 	Tipo      string
+	Limit     int
+	Offset    int
 }
 
 type StatusUpdatePayload struct {

@@ -27,6 +27,8 @@ func (s *Service) GetPropostas(ctx context.Context, filter PropostasFilter) ([]p
 		UsuarioID: filter.UsuarioID,
 		Status:    filter.Status, //opcional
 		Tipo:      filter.Tipo,   //obrigatorio
+		Limit:     filter.Limit,
+		Offset:    filter.Offset,
 	})
 }
 
