@@ -40,9 +40,14 @@ func main() {
 
 	go email.IniciarEnvioPeriodico(db, 1*time.Minute)
 
+	secret := []byte(os.Getenv("JWT_SECRET_KEY"))
+	if secret == nil {
+		log.Fatal("JWT_SECRET_KEY não definido nas envs")
+	}
+
 	r := mux.NewRouter()
 
-	routes.RegisterRoutes(r, db)
+	routes.RegisterRoutes(r, db, secret)
 
 	corsHandler := cors.New(cors.Options{AllowedOrigins: []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

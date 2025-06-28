@@ -135,6 +135,64 @@
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Autentica um usuário e retorna token JWT para autenticação nas rotas protegidas.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "autenticação"
+                ],
+                "summary": "Login de usuário",
+                "parameters": [
+                    {
+                        "description": "Email e senha do usuário",
+                        "name": "loginRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/loginhandler.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token JWT gerado",
+                        "schema": {
+                            "$ref": "#/definitions/loginhandler.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Email e senha são obrigatórios",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Email ou senha inválidos",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "Usuário temporariamente bloqueado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/postagens": {
             "get": {
                 "description": "Retorna uma lista de postagens de acordo com os filtros fornecidos",
@@ -819,6 +877,25 @@
             "type": "object",
             "properties": {
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "loginhandler.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "senha": {
+                    "type": "string"
+                }
+            }
+        },
+        "loginhandler.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

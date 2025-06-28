@@ -5,6 +5,9 @@ import (
 	"escambo/internal/imagens/imagenshandler"
 	"escambo/internal/imagens/imagensrepo"
 	"escambo/internal/imagens/imagenssvc"
+	"escambo/internal/login/loginhandler"
+	"escambo/internal/login/loginrepo"
+	"escambo/internal/login/loginsvc"
 	"escambo/internal/postagem/postagemhandler"
 	"escambo/internal/postagem/postagemrepo"
 	"escambo/internal/postagem/postagemsvc"
@@ -24,7 +27,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func RegisterRoutes(r *mux.Router, db *sql.DB) {
+func RegisterRoutes(r *mux.Router, db *sql.DB, jwtSecret []byte) {
 	postRepo := postagemrepo.NewRepository(db)
 	postService := postagemsvc.NewService(postRepo)
 	postHandler := postagemhandler.NewHandler(postService)
@@ -68,6 +71,12 @@ func RegisterRoutes(r *mux.Router, db *sql.DB) {
 	r.HandleFunc("/trocas/{id}/imagem", imagenshandler.UploadImagemTroca).Methods("POST")
 	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.UploadImagemPostagem).Methods("POST")
 	r.HandleFunc("/postagens/{id}/imagem", imagenshandler.DeleteImagemPostagem).Methods("DELETE")
+
+	authRepository := loginrepo.NewRepo(db)
+	authService := loginsvc.NewService(authRepository, jwtSecret)
+	authHandler := loginhandler.NewHandler(authService)
+
+	r.HandleFunc("/login", authHandler.Login).Methods("POST")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 

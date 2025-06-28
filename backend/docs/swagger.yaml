@@ -4,6 +4,18 @@ definitions:
       url:
         type: string
     type: object
+  loginhandler.LoginRequest:
+    properties:
+      email:
+        type: string
+      senha:
+        type: string
+    type: object
+  loginhandler.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   postagemhandler.DesfavoritarPostagemRequest:
     properties:
       postagem_id:
@@ -260,6 +272,45 @@ paths:
       summary: Lista favoritos de um usuário
       tags:
       - favoritos
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica um usuário e retorna token JWT para autenticação nas
+        rotas protegidas.
+      parameters:
+      - description: Email e senha do usuário
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/loginhandler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token JWT gerado
+          schema:
+            $ref: '#/definitions/loginhandler.LoginResponse'
+        "400":
+          description: Email e senha são obrigatórios
+          schema:
+            type: string
+        "401":
+          description: Email ou senha inválidos
+          schema:
+            type: string
+        "403":
+          description: Usuário temporariamente bloqueado
+          schema:
+            type: string
+        "500":
+          description: Erro interno
+          schema:
+            type: string
+      summary: Login de usuário
+      tags:
+      - autenticação
   /postagens:
     get:
       consumes:
