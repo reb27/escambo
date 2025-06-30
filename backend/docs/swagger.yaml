@@ -59,6 +59,8 @@ definitions:
         items:
           type: string
         type: array
+      marcado_como_favorito:
+        type: boolean
       nome_usuario:
         type: string
       titulo:
@@ -89,6 +91,8 @@ definitions:
         items:
           type: string
         type: array
+      marcado_como_favorito:
+        type: boolean
       titulo:
         type: string
       user_id:
@@ -185,6 +189,10 @@ definitions:
     type: object
 info:
   contact: {}
+  description: API para gerenciamento de postagens e trocas de escambo.
+  termsOfService: http://swagger.io/terms/
+  title: Escambo API
+  version: "1.0"
 paths:
   /favoritos:
     delete:
@@ -333,6 +341,10 @@ paths:
         in: query
         name: limite
         type: integer
+      - description: Palavra-chave para busca por título ou descrição
+        in: query
+        name: busca
+        type: string
       - description: Número da página de resultados
         in: query
         name: pagina
@@ -449,10 +461,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/postagemsvc.Postagem'
+        "401":
+          description: Não autorizado
+          schema:
+            type: string
         "500":
           description: Erro interno ao buscar a postagem ou ao codificar a resposta
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Buscar detalhes da postagem
       tags:
       - postagens
@@ -765,4 +783,9 @@ paths:
       summary: Atualiza dados de um usuário
       tags:
       - usuarios
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

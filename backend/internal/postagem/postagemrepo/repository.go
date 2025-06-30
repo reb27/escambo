@@ -42,29 +42,34 @@ func (r Repository) InsertPostagem(ctx context.Context, post Postagem) (string, 
 	return id, err
 }
 
-func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postagem, error) {
+func (r Repository) GetPostagemByID(ctx context.Context, postID string, usuarioID string) (Postagem, error) {
 	query := `
 		SELECT 
-			titulo, 
-			descricao, 
-			user_id, 
-			categoria,
-			created_at, 
-			imagem_url
-		FROM postagens
-		WHERE id = $1;
+			p.titulo, 
+			p.descricao, 
+			p.user_id, 
+			p.categoria,
+			p.created_at, 
+			p.imagem_url,
+			EXISTS (
+				SELECT 1 FROM favoritos f 
+				WHERE f.postagem_id = p.id AND f.usuario_id = $2
+			) AS eh_favorito
+		FROM postagens p
+		WHERE p.id = $1;
 	`
 
 	var post Postagem
 	var imagensJSON []byte
 
-	err := r.DB.QueryRowContext(ctx, query, postID).Scan(
+	err := r.DB.QueryRowContext(ctx, query, postID, usuarioID).Scan(
 		&post.Titulo,
 		&post.Descricao,
 		&post.UserID,
 		&post.Categoria,
 		&post.CreatedAt,
 		&imagensJSON,
+		&post.MarcadoComoFavorito,
 	)
 	if err != nil {
 		return Postagem{}, err
@@ -80,6 +85,11 @@ func (r Repository) GetPostagemByID(ctx context.Context, postID string) (Postage
 }
 
 func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, offset int) ([]Postagem, error) {
+	ordenacao := "DESC"
+	if strings.ToUpper(filtro.Ordenacao) == "ASC" {
+		ordenacao = "ASC"
+	}
+
 	query := fmt.Sprintf(`
 		SELECT 
 			p.id,
@@ -99,12 +109,23 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 		JOIN endereco e ON e.user_id = u.id
 		WHERE p.ativa = TRUE
 			AND (NULLIF($1, '') IS NULL OR p.categoria = $1)
-			AND (NULLIF($4, '') IS NULL OR p.user_id = $4::uuid)
+			AND (NULLIF($2, '') IS NULL OR p.user_id = $2::uuid)
+			AND (
+				NULLIF($5, '') IS NULL OR
+				p.titulo ILIKE '%%' || $5 || '%%' OR
+				p.descricao ILIKE '%%' || $5 || '%%'
+			)
 		ORDER BY p.created_at %s
-		LIMIT $2 OFFSET $3
-	`, filtro.Ordenacao)
+		LIMIT $3 OFFSET $4
+	`, ordenacao)
 
-	rows, err := r.DB.QueryContext(ctx, query, filtro.Categoria, filtro.Limite, offset, filtro.UsuarioID)
+	rows, err := r.DB.QueryContext(ctx, query,
+		filtro.Categoria,  // $1
+		filtro.UsuarioID,  // $2
+		filtro.Limite,     // $3
+		offset,            // $4
+		filtro.BuscaTexto, // $5
+	)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao executar query: %w", err)
 	}
@@ -116,7 +137,7 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 		var post Postagem
 		var imagensJSON *string
 
-		err := rows.Scan(
+		if err := rows.Scan(
 			&post.ID,
 			&post.Status,
 			&post.Titulo,
@@ -129,8 +150,7 @@ func (r Repository) GetPostagens(ctx context.Context, filtro FiltroPostagem, off
 			&post.Cidade,
 			&post.Estado,
 			&post.Bairro,
-		)
-		if err != nil {
+		); err != nil {
 			return nil, fmt.Errorf("erro ao escanear linha: %w", err)
 		}
 

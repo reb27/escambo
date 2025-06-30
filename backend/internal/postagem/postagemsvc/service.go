@@ -9,7 +9,7 @@ import (
 
 type PostagemRepository interface {
 	InsertPostagem(ctx context.Context, post postagemrepo.Postagem) (string, error)
-	GetPostagemByID(ctx context.Context, postID string) (postagemrepo.Postagem, error)
+	GetPostagemByID(ctx context.Context, postID string, usuarioID string) (postagemrepo.Postagem, error)
 	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem, offset int) ([]postagemrepo.Postagem, error)
 	FavoritarPostagem(ctx context.Context, userID, postagemID string) error
 	DesfavoritarPostagem(ctx context.Context, userID, postagemID string) error
@@ -48,20 +48,20 @@ func (s Service) InsertPostagem(ctx context.Context, postagem Postagem) (string,
 	return id, nil
 }
 
-func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string) (Postagem, error) {
-	postagem, err := s.PostagemRepo.GetPostagemByID(ctx, postagemID)
+func (s Service) GetDetalhesPostagem(ctx context.Context, postagemID string, usuarioID string) (Postagem, error) {
+	postagem, err := s.PostagemRepo.GetPostagemByID(ctx, postagemID, usuarioID)
 	if err != nil {
 		return Postagem{}, err
 	}
 
 	return Postagem{
-		Titulo:    postagem.Titulo,
-		Descricao: postagem.Descricao,
-		UserID:    postagem.UserID,
-		Categoria: postagem.Categoria,
-		Imagens:   postagem.Imagens,
+		Titulo:              postagem.Titulo,
+		Descricao:           postagem.Descricao,
+		UserID:              postagem.UserID,
+		Categoria:           postagem.Categoria,
+		Imagens:             postagem.Imagens,
+		MarcadoComoFavorito: postagem.MarcadoComoFavorito,
 	}, nil
-
 }
 
 func (s Service) GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error) {

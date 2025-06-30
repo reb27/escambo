@@ -1,7 +1,11 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API para gerenciamento de postagens e trocas de escambo.",
+        "title": "Escambo API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {},
+        "version": "1.0"
     },
     "paths": {
         "/favoritos": {
@@ -232,6 +236,12 @@
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Palavra-chave para busca por título ou descrição",
+                        "name": "busca",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Número da página de resultados",
                         "name": "pagina",
@@ -376,6 +386,11 @@
         },
         "/postagens/{id}/detalhes": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retorna todas as informações de uma postagem com base no ID fornecido.",
                 "consumes": [
                     "application/json"
@@ -401,6 +416,12 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/postagemsvc.Postagem"
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -966,6 +987,9 @@
                         "type": "string"
                     }
                 },
+                "marcado_como_favorito": {
+                    "type": "boolean"
+                },
                 "nome_usuario": {
                     "type": "string"
                 },
@@ -1011,6 +1035,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "marcado_como_favorito": {
+                    "type": "boolean"
                 },
                 "titulo": {
                     "type": "string"
@@ -1156,6 +1183,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

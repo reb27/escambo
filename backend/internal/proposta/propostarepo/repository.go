@@ -25,6 +25,17 @@ func (r Repository) UpdatePropostaStatus(ctx context.Context, propostaID, status
 		return fmt.Errorf("erro ao iniciar transação: %w", err)
 	}
 
+	var remetenteID, destinatarioID, postagemID string
+	selectQuery := `
+		SELECT interessado_id, dono_postagem_id, postagem_id
+		FROM propostas
+		WHERE id = $1;
+	`
+	if err := tx.QueryRowContext(ctx, selectQuery, propostaID).Scan(&remetenteID, &destinatarioID, &postagemID); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("erro ao buscar dados da proposta: %w", err)
+	}
+
 	updateQuery := `
 		UPDATE propostas
 		SET status = $1
@@ -35,15 +46,24 @@ func (r Repository) UpdatePropostaStatus(ctx context.Context, propostaID, status
 		return err
 	}
 
-	var remetenteID, destinatarioID, postagemID string
-	selectQuery := `
-		SELECT interessado_id, dono_postagem_id, postagem_id
-		FROM propostas
+	cancelarOutras := `
+		UPDATE propostas
+		SET status = 'recusada'
+		WHERE postagem_id = $1 AND id != $2 AND status = 'pendente';
+	`
+	if _, err := tx.ExecContext(ctx, cancelarOutras, postagemID, propostaID); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("erro ao cancelar outras propostas: %w", err)
+	}
+
+	desativarPostagem := `
+		UPDATE postagens
+		SET ativa = FALSE
 		WHERE id = $1;
 	`
-	if err := tx.QueryRowContext(ctx, selectQuery, propostaID).Scan(&remetenteID, &destinatarioID, &postagemID); err != nil {
+	if _, err := tx.ExecContext(ctx, desativarPostagem, postagemID); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("erro ao buscar dados da proposta: %w", err)
+		return fmt.Errorf("erro ao desativar a postagem: %w", err)
 	}
 
 	insertNotificacao := `

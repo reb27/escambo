@@ -13,7 +13,7 @@ import (
 )
 
 type PostagemService interface {
-	GetDetalhesPostagem(ctx context.Context, postID string) (postagemsvc.Postagem, error)
+	GetDetalhesPostagem(ctx context.Context, postID string, usuarioID string) (postagemsvc.Postagem, error)
 	InsertPostagem(ctx context.Context, post postagemsvc.Postagem) (string, error)
 	GetPostagens(ctx context.Context, filtro postagemrepo.FiltroPostagem) ([]postagemrepo.Postagem, error)
 	FavoritarPostagem(ctx context.Context, userID, postagemID string) error
@@ -39,13 +39,21 @@ func NewHandler(service PostagemService) *Handler {
 // @Produce      json
 // @Param        id   path      string  true  "ID da Postagem"
 // @Success      200  {object}  postagemsvc.Postagem
+// @Failure      401  {string}  string  "Não autorizado"
 // @Failure      500  {string}  string  "Erro interno ao buscar a postagem ou ao codificar a resposta"
+// @Security     BearerAuth
 // @Router       /postagens/{id}/detalhes [get]
 func (h *Handler) GetDetalhesPostagem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	postID := vars["id"]
 
-	post, err := h.Service.GetDetalhesPostagem(r.Context(), postID)
+	usuarioID, ok := r.Context().Value("usuarioID").(string)
+	if !ok || usuarioID == "" {
+		http.Error(w, "usuário não autenticado", http.StatusUnauthorized)
+		return
+	}
+
+	post, err := h.Service.GetDetalhesPostagem(r.Context(), postID, usuarioID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("erro ao buscar postagem: %v", err), http.StatusInternalServerError)
 		return
@@ -138,6 +146,7 @@ func (h Handler) DeletarPostagem(w http.ResponseWriter, r *http.Request) {
 // @Param id_usuario query string false "ID de um usuario"
 // @Param ordenacao query string false "Ordenação das datas DESC ou ASC"
 // @Param limite query int false "Número máximo de postagens por página"
+// @Param busca query string false "Palavra-chave para busca por título ou descrição"
 // @Param pagina query int false "Número da página de resultados"
 // @Success 200 {array} postagemrepo.Postagem
 // @Failure 500 {string} string "Erro ao listar postagens"
@@ -147,9 +156,10 @@ func (h Handler) GetPostagens(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	filtro := postagemrepo.FiltroPostagem{
-		Categoria: query.Get("categoria"),
-		Ordenacao: query.Get("ordenacao"),
-		UsuarioID: query.Get("id_usuario"),
+		Categoria:  query.Get("categoria"),
+		Ordenacao:  query.Get("ordenacao"),
+		UsuarioID:  query.Get("id_usuario"),
+		BuscaTexto: query.Get("busca"),
 	}
 
 	if limiteStr := query.Get("limite"); limiteStr != "" {

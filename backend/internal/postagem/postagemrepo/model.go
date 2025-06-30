@@ -5,15 +5,16 @@ import (
 )
 
 type Postagem struct {
-	ID          string    `json:"id"`
-	Titulo      string    `json:"titulo"`
-	Descricao   string    `json:"descricao"`
-	Imagens     []string  `json:"imagens"`
-	UserID      string    `json:"user_id"`
-	Status      bool      `json:"ativa"`
-	NomeUsuario string    `json:"nome_usuario"`
-	Categoria   string    `json:"categoria"`
-	CreatedAt   time.Time `json:"criacao_em"`
+	ID                  string    `json:"id"`
+	Titulo              string    `json:"titulo"`
+	Descricao           string    `json:"descricao"`
+	Imagens             []string  `json:"imagens"`
+	UserID              string    `json:"user_id"`
+	Status              bool      `json:"ativa"`
+	NomeUsuario         string    `json:"nome_usuario"`
+	Categoria           string    `json:"categoria"`
+	CreatedAt           time.Time `json:"criacao_em"`
+	MarcadoComoFavorito bool      `json:"marcado_como_favorito"`
 	Endereco
 }
 
@@ -32,11 +33,12 @@ type Endereco struct {
 }
 
 type FiltroPostagem struct {
-	Categoria string
-	Ordenacao string
-	UsuarioID string
-	Limite    int
-	Pagina    int
+	Categoria  string
+	Ordenacao  string
+	UsuarioID  string
+	Limite     int
+	Pagina     int
+	BuscaTexto string
 }
 
 type Favorito struct {

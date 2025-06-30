@@ -9,6 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
+        "termsOfService": "http://swagger.io/terms/",
         "contact": {},
         "version": "{{.Version}}"
     },
@@ -243,6 +244,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Palavra-chave para busca por título ou descrição",
+                        "name": "busca",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Número da página de resultados",
                         "name": "pagina",
@@ -387,6 +394,11 @@ const docTemplate = `{
         },
         "/postagens/{id}/detalhes": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retorna todas as informações de uma postagem com base no ID fornecido.",
                 "consumes": [
                     "application/json"
@@ -412,6 +424,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/postagemsvc.Postagem"
+                        }
+                    },
+                    "401": {
+                        "description": "Não autorizado",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -977,6 +995,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "marcado_como_favorito": {
+                    "type": "boolean"
+                },
                 "nome_usuario": {
                     "type": "string"
                 },
@@ -1022,6 +1043,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "marcado_como_favorito": {
+                    "type": "boolean"
                 },
                 "titulo": {
                     "type": "string"
@@ -1168,17 +1192,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Escambo API",
+	Description:      "API para gerenciamento de postagens e trocas de escambo.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

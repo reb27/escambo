@@ -1,3 +1,11 @@
+// @title           Escambo API
+// @version         1.0
+// @description     API para gerenciamento de postagens e trocas de escambo.
+// @termsOfService  http://swagger.io/terms/
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (

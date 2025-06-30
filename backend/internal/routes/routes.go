@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"escambo/internal/imagens/imagenshandler"
 	"escambo/internal/imagens/imagensrepo"
 	"escambo/internal/imagens/imagenssvc"
@@ -18,10 +20,13 @@ import (
 	"escambo/internal/usuario/usuariorepo"
 	"escambo/internal/usuario/usuariosvc"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 
 	_ "escambo/docs"
 
+	"github.com/golang-jwt/jwt"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
@@ -32,7 +37,11 @@ func RegisterRoutes(r *mux.Router, db *sql.DB, jwtSecret []byte) {
 	postService := postagemsvc.NewService(postRepo)
 	postHandler := postagemhandler.NewHandler(postService)
 
-	r.HandleFunc("/postagens/{id}/detalhes", postHandler.GetDetalhesPostagem).Methods("GET")
+	authRoutes := r.PathPrefix("/").Subrouter()
+	authRoutes.Use(AutenticacaoMiddleware(jwtSecret))
+
+	authRoutes.HandleFunc("/postagens/{id}/detalhes", postHandler.GetDetalhesPostagem).Methods("GET")
+
 	r.HandleFunc("/postagens", postHandler.InsertPostagem).Methods("POST")
 	r.HandleFunc("/postagens", postHandler.GetPostagens).Methods("GET")
 	r.HandleFunc("/postagens/{id}", postHandler.DeletarPostagem).Methods("DELETE")
@@ -80,4 +89,49 @@ func RegisterRoutes(r *mux.Router, db *sql.DB, jwtSecret []byte) {
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
+}
+
+func AutenticacaoMiddleware(chaveSecreta []byte) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := r.Header.Get("Authorization")
+			if token == "" {
+				http.Error(w, "token não fornecido", http.StatusUnauthorized)
+				return
+			}
+
+			usuarioID, err := validarTokenERetornarUsuarioID(token, chaveSecreta)
+			if err != nil {
+				http.Error(w, "token inválido", http.StatusUnauthorized)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), "usuarioID", usuarioID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func validarTokenERetornarUsuarioID(tokenStr string, chaveSecreta []byte) (string, error) {
+	if strings.HasPrefix(tokenStr, "Bearer ") {
+		tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
+	}
+
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("método de assinatura inesperado")
+		}
+		return chaveSecreta, nil
+	})
+	if err != nil || !token.Valid {
+		return "", errors.New("token inválido")
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if usuarioID, ok := claims["sub"].(string); ok {
+			return usuarioID, nil
+		}
+	}
+
+	return "", errors.New("usuario_id não encontrado no token")
 }
