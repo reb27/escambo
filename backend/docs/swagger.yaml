@@ -319,6 +319,31 @@ paths:
       summary: Login de usuário
       tags:
       - autenticação
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: Retorna os dados do usuário com base no token de autenticação
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usuariorepo.ReadUsuario'
+        "401":
+          description: Não autorizado
+          schema:
+            type: string
+        "500":
+          description: Erro interno do servidor
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Retorna o usuário autenticado
+      tags:
+      - usuarios
   /postagens:
     get:
       consumes:

@@ -126,3 +126,35 @@ func (h *Handler) GetUsuario(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(usuario)
 }
+
+// GetMe godoc
+// @Summary      Retorna o usuário autenticado
+// @Description  Retorna os dados do usuário com base no token de autenticação
+// @Tags         usuarios
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  usuariorepo.ReadUsuario
+// @Failure      401  {string}  string  "Não autorizado"
+// @Failure      500  {string}  string  "Erro interno do servidor"
+// @Router       /me [get]
+func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value("usuarioID").(string)
+	if !ok || userID == "" {
+		http.Error(w, "Não autorizado", http.StatusUnauthorized)
+		return
+	}
+
+	usuario, err := h.usuarioService.GetUsuario(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Erro ao buscar usuário", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(usuario)
+}

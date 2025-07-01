@@ -37,11 +37,6 @@ func RegisterRoutes(r *mux.Router, db *sql.DB, jwtSecret []byte) {
 	postService := postagemsvc.NewService(postRepo)
 	postHandler := postagemhandler.NewHandler(postService)
 
-	authRoutes := r.PathPrefix("/").Subrouter()
-	authRoutes.Use(AutenticacaoMiddleware(jwtSecret))
-
-	authRoutes.HandleFunc("/postagens/{id}/detalhes", postHandler.GetDetalhesPostagem).Methods("GET")
-
 	r.HandleFunc("/postagens", postHandler.InsertPostagem).Methods("POST")
 	r.HandleFunc("/postagens", postHandler.GetPostagens).Methods("GET")
 	r.HandleFunc("/postagens/{id}", postHandler.DeletarPostagem).Methods("DELETE")
@@ -86,6 +81,12 @@ func RegisterRoutes(r *mux.Router, db *sql.DB, jwtSecret []byte) {
 	authHandler := loginhandler.NewHandler(authService)
 
 	r.HandleFunc("/login", authHandler.Login).Methods("POST")
+
+	authRoutes := r.PathPrefix("/").Subrouter()
+	authRoutes.Use(AutenticacaoMiddleware(jwtSecret))
+
+	authRoutes.HandleFunc("/postagens/{id}/detalhes", postHandler.GetDetalhesPostagem).Methods("GET")
+	authRoutes.HandleFunc("/me", usuarioHandler.GetMe).Methods("GET")
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
