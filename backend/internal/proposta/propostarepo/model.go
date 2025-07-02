@@ -31,6 +31,7 @@ type Produto struct {
 }
 
 type PropostaFormatada struct {
+	ID                   string  `json:"id_proposta"`
 	ProdutoPostagem      Produto `json:"produto_postagem"`
 	ProdutoPropostaTroca Produto `json:"produto_proposta_troca"`
 	Status               string  `json:"status"`

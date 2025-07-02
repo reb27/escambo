@@ -152,6 +152,7 @@ func (r Repository) InsertProposta(ctx context.Context, proposta PropostaWriteMo
 func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilter) ([]PropostaFormatada, error) {
 	query := `
 		SELECT 
+			p.id,
 			p.status,
 
 			po.titulo AS postagem_titulo,
@@ -185,6 +186,7 @@ func (r Repository) GetPropostas(ctx context.Context, filter PropostasQueryFilte
 		var imagensPostagemJSON, imagensPropostaJSON []byte
 
 		err := rows.Scan(
+			&p.ID,
 			&p.Status,
 
 			&p.ProdutoPostagem.Nome,

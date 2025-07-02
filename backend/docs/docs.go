@@ -1146,6 +1146,9 @@ const docTemplate = `{
         "propostarepo.PropostaFormatada": {
             "type": "object",
             "properties": {
+                "id_proposta": {
+                    "type": "string"
+                },
                 "produto_postagem": {
                     "$ref": "#/definitions/propostarepo.Produto"
                 },

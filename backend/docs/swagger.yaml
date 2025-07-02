@@ -131,6 +131,8 @@ definitions:
     type: object
   propostarepo.PropostaFormatada:
     properties:
+      id_proposta:
+        type: string
       produto_postagem:
         $ref: '#/definitions/propostarepo.Produto'
       produto_proposta_troca:
